@@ -3,9 +3,11 @@ package main
 import (
 	"budgeting-service/config"
 	"budgeting-service/pkg/logs"
+	"budgeting-service/queue/kafka/consumer"
 	"budgeting-service/service"
 	"budgeting-service/storage"
 	"budgeting-service/storage/mongodb"
+	"context"
 	"fmt"
 	"log"
 	"net"
@@ -34,6 +36,18 @@ func main() {
 	}
 
 	grpcServer := grpc.NewServer()
+
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	go func() {
+		log.Println("Kafka consumer...")
+		reader := consumer.NewKafkaConsumer(cfg.KafkaBrokers, cfg.KafkaTopic, cfg.KafkaGroupId, logger)
+		defer reader.Close()
+		err := reader.ConsumeMessages(ctx, func(message []byte) {})
+		if err != nil {
+			log.Printf("Error consuming messages: %v", err)
+		}
+	}()
 
 	service := service.NewServiceManager(listener, grpcServer)
 	service.RegisterServiceManagerServer(storage, logger)

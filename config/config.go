@@ -9,13 +9,16 @@ import (
 )
 
 type Config struct {
-	GRPC_PORT      int    `yaml:"grpc_port"`
-	Redis_HOST     string `yaml:"redis_host"`
-	Redis_PORT     int    `yaml:"redis_port"`
-	Redis_PASSWORD string `yaml:"redis_password"`
-	Redis_DB       int    `yaml:"redis_db"`
-	MONGODB_NAME   string `yaml:"mongodb_name"`
-	MONGODB_URI    string `yaml:"mongodb_uri"`
+	GRPC_PORT      int      `yaml:"grpc_port"`
+	Redis_HOST     string   `yaml:"redis_host"`
+	Redis_PORT     int      `yaml:"redis_port"`
+	Redis_PASSWORD string   `yaml:"redis_password"`
+	Redis_DB       int      `yaml:"redis_db"`
+	MONGODB_NAME   string   `yaml:"mongodb_name"`
+	MONGODB_URI    string   `yaml:"mongodb_uri"`
+	KafkaBrokers   []string `yaml:"kafka_brokers"`
+	KafkaTopic     string   `yaml:"kafka_topic"`
+	KafkaGroupId   string   `yaml:"kafka_group_id"`
 }
 
 func Load() *Config {
@@ -35,6 +38,10 @@ func Load() *Config {
 	config.MONGODB_NAME = cast.ToString(coalesce("MONGODB_NAME", "mongo"))
 	config.MONGODB_URI = cast.ToString(coalesce("MONGODB_URI", "mongodb://mongo:27017"))
 
+	config.KafkaBrokers = cast.ToStringSlice(coalesce("KAFKA_BROKERS", []string{"kafka:9092"}))
+	config.KafkaTopic = cast.ToString(coalesce("KAFKA_TOPIC", "budgeting"))
+	config.KafkaGroupId = cast.ToString(coalesce("KAFKA_GROUP_ID", "budgeting-service"))
+	
 	return config
 }
 

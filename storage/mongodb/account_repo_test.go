@@ -1,0 +1,125 @@
+package mongodb
+
+import (
+	"budgeting-service/config"
+	pb "budgeting-service/generated/budgeting"
+	"context"
+	"testing"
+
+	"github.com/stretchr/testify/assert"
+)
+
+func TestConnectToMongo(t *testing.T) {
+	cfg := config.Load()
+	db, err := ConnectToMongoDB()
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer db.Client().Disconnect(context.Background())
+	t.Log("Connected to MongoDB successfully")
+
+	assert.Equal(t, cfg.MONGODB_NAME, db.Name())
+}
+
+func TestCreateAccount(t *testing.T) {
+	db, err := ConnectToMongoDB()
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer db.Client().Disconnect(context.Background())
+
+	repo := NewAccountRepository(db)
+	account := &pb.CreateAccountReq{
+		UserId:   "test_user_id",
+		Name:     "Test Account",
+		Type:     pb.AccountType_CHECKING,
+		Balance:  1000.0,
+		Currency: "USD",
+	}
+	resp, err := repo.CreateAccount(context.Background(), account)
+	if err != nil {
+		t.Fatal(err)
+	}
+	assert.Equal(t, "success", resp.Status)
+}
+
+func TestUpdateAccount(t *testing.T) {
+	db, err := ConnectToMongoDB()
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer db.Client().Disconnect(context.Background())
+
+	repo := NewAccountRepository(db)
+	account := &pb.UpdateAccountReq{
+		Id:       "1e891746-d2bb-44d0-bab0-4660ee52d12d",
+		Name:     "Updated Test Account",
+		Type:     pb.AccountType_SAVINGS,
+		Balance:  2000.0,
+		Currency: "USD",
+	}
+	resp, err := repo.UpdateAccount(context.Background(), account)
+	if err != nil {
+		t.Fatal(err)
+	}
+	assert.Equal(t, "success", resp.Status)
+}
+
+func TestDeleteAccount(t *testing.T) {
+	db, err := ConnectToMongoDB()
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer db.Client().Disconnect(context.Background())
+
+	repo := NewAccountRepository(db)
+	resp, err := repo.DeleteAccount(context.Background(), &pb.DeleteAccountReq{
+		Id:     "test_account_id",
+		UserId: "test_user_id",
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if assert.Equal(t, "account not found", resp.Message) {
+		return
+	}
+	assert.Equal(t, "success", resp.Status)
+}
+
+func TestGetAccountsList(t *testing.T) {
+	db, err := ConnectToMongoDB()
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer db.Client().Disconnect(context.Background())
+
+	repo := NewAccountRepository(db)
+	resp, err := repo.GetAccountsList(context.Background(), &pb.GetAccountsListReq{
+		UserId: "test_user_id",
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	assert.Equal(t, 1, len(resp.Accounts))
+}
+
+func TestGetAccount(t *testing.T) {
+	db, err := ConnectToMongoDB()
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer db.Client().Disconnect(context.Background())
+
+	repo := NewAccountRepository(db)
+	resp, err := repo.GetAccount(context.Background(), &pb.GetAccountReq{
+		Id:     "1e891746-d2bb-44d0-bab0-4660ee52d12d",
+		UserId: "test_user_id",
+	})
+
+	if assert.Nil(t, err) {
+		t.Log("GetAccount returned an error")
+	} else {
+		assert.Equal(t, "test_user_id", resp.GetUserId())
+	}
+}

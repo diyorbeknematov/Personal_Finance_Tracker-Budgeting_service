@@ -18,6 +18,7 @@ type BudgetManagementRepo interface {
 	UpdateBudget(ctx context.Context, budget *pb.UpdateBudgetReq) (*pb.UpdateBudgetResp, error)
 	DeleteBudget(ctx context.Context, request *pb.DeleteBudgetReq) (*pb.DeleteBudgetResp, error)
 	GetBudget(ctx context.Context, request *pb.GetBudgetReq) (*pb.GetBudgetResp, error)
+	GetBudgetsList(ctx context.Context, request *pb.GetBudgetsReq) (*pb.GetBudgetsResp, error)
 }
 
 type budgetManagementRepoImpl struct {
@@ -157,3 +158,8 @@ func (repo *budgetManagementRepoImpl) DeleteBudget(ctx context.Context, req *pb.
 		Message: "deleted budget successfully",
 	}, nil
 }
+
+
+func (repo *budgetManagementRepoImpl) GetBudgetsList(ctx context.Context, budget *pb.GetBudgetsReq) (*pb.GetBudgetsResp, error) {
+	return nil, nil
+}	

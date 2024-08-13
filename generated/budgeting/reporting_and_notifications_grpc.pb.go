@@ -33,7 +33,7 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type ReportingNotificationServiceClient interface {
 	GetSepending(ctx context.Context, in *GetSependingReq, opts ...grpc.CallOption) (*GetSependingResp, error)
-	GetIncome(ctx context.Context, in *GetIncomeReq, opts ...grpc.CallOption) (*GetIncomeResp, error)
+	GetIncome(ctx context.Context, in *GetIncomeReportReq, opts ...grpc.CallOption) (*GetIncomeReportResp, error)
 	GetBudgetPerformance(ctx context.Context, in *GetBudgetPerformanceReq, opts ...grpc.CallOption) (*GetBudgetPerformanceResp, error)
 	GoalProgress(ctx context.Context, in *GetGoalProgressReq, opts ...grpc.CallOption) (*GetGoalProgressResp, error)
 	// Notification
@@ -60,9 +60,9 @@ func (c *reportingNotificationServiceClient) GetSepending(ctx context.Context, i
 	return out, nil
 }
 
-func (c *reportingNotificationServiceClient) GetIncome(ctx context.Context, in *GetIncomeReq, opts ...grpc.CallOption) (*GetIncomeResp, error) {
+func (c *reportingNotificationServiceClient) GetIncome(ctx context.Context, in *GetIncomeReportReq, opts ...grpc.CallOption) (*GetIncomeReportResp, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(GetIncomeResp)
+	out := new(GetIncomeReportResp)
 	err := c.cc.Invoke(ctx, ReportingNotificationService_GetIncome_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -125,7 +125,7 @@ func (c *reportingNotificationServiceClient) GetNotification(ctx context.Context
 // for forward compatibility
 type ReportingNotificationServiceServer interface {
 	GetSepending(context.Context, *GetSependingReq) (*GetSependingResp, error)
-	GetIncome(context.Context, *GetIncomeReq) (*GetIncomeResp, error)
+	GetIncome(context.Context, *GetIncomeReportReq) (*GetIncomeReportResp, error)
 	GetBudgetPerformance(context.Context, *GetBudgetPerformanceReq) (*GetBudgetPerformanceResp, error)
 	GoalProgress(context.Context, *GetGoalProgressReq) (*GetGoalProgressResp, error)
 	// Notification
@@ -142,7 +142,7 @@ type UnimplementedReportingNotificationServiceServer struct {
 func (UnimplementedReportingNotificationServiceServer) GetSepending(context.Context, *GetSependingReq) (*GetSependingResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetSepending not implemented")
 }
-func (UnimplementedReportingNotificationServiceServer) GetIncome(context.Context, *GetIncomeReq) (*GetIncomeResp, error) {
+func (UnimplementedReportingNotificationServiceServer) GetIncome(context.Context, *GetIncomeReportReq) (*GetIncomeReportResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetIncome not implemented")
 }
 func (UnimplementedReportingNotificationServiceServer) GetBudgetPerformance(context.Context, *GetBudgetPerformanceReq) (*GetBudgetPerformanceResp, error) {
@@ -193,7 +193,7 @@ func _ReportingNotificationService_GetSepending_Handler(srv interface{}, ctx con
 }
 
 func _ReportingNotificationService_GetIncome_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetIncomeReq)
+	in := new(GetIncomeReportReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -205,7 +205,7 @@ func _ReportingNotificationService_GetIncome_Handler(srv interface{}, ctx contex
 		FullMethod: ReportingNotificationService_GetIncome_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ReportingNotificationServiceServer).GetIncome(ctx, req.(*GetIncomeReq))
+		return srv.(ReportingNotificationServiceServer).GetIncome(ctx, req.(*GetIncomeReportReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }

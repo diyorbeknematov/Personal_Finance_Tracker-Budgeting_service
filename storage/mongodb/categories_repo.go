@@ -118,37 +118,6 @@ func (repo *categoryRepositoryImpl) DeleteCategory(ctx context.Context, request 
 	}, nil
 }
 
-func (repo *categoryRepositoryImpl) GetCategoriesList(ctx context.Context, request *pb.GetCategoriesReq) (*pb.GetCategoriesResp, error) {
-	filter := bson.D{
-		// {Key: "user_id", Value: request.UserId},
-		{Key: "deleted_at", Value: nil},
-	}
-
-	cursor, err := repo.coll.Find(ctx, filter)
-	if err != nil {
-		return nil, err
-	}
-	defer cursor.Close(ctx)
-
-	var categories []*pb.Category
-	for cursor.Next(ctx) {
-		var cat pb.Category
-		err := cursor.Decode(&cat)
-		if err != nil {
-			return nil, err
-		}
-		categories = append(categories, &cat)
-	}
-
-	if err := cursor.Err(); err != nil {
-		return nil, err
-	}
-
-	return &pb.GetCategoriesResp{
-		Categories: categories,
-	}, nil
-}
-
 func (repo *categoryRepositoryImpl) GetCategory(ctx context.Context, request *pb.GetCategoryReq) (*pb.GetCategoryResp, error) {
 	filter := bson.D{
 		{Key: "_id", Value: request.Id},
@@ -172,4 +141,78 @@ func (repo *categoryRepositoryImpl) GetCategory(ctx context.Context, request *pb
 		Name:   category.Name,
 		Type:   *categoryType,
 	}, nil
+}
+
+func (repo *categoryRepositoryImpl) GetCategoriesList(ctx context.Context, request *pb.GetCategoriesReq) (*pb.GetCategoriesResp, error) {
+	pipeline := createCategoryFilters(request)
+	totalCount, err := repo.coll.CountDocuments(ctx, pipeline)
+	if err != nil {
+		return nil, err
+	}
+	pipeline = append(pipeline, bson.D{{Key: "$skip", Value: (request.Page - 1) * request.Limit}})
+	pipeline = append(pipeline, bson.D{{Key: "$limit", Value: request.Limit}})
+
+	cursor, err := repo.coll.Aggregate(ctx, pipeline)
+	if err != nil {
+		return nil, err
+	}
+	var categories []*pb.Category
+	for cursor.Next(ctx) {
+		var category models.GetCategory
+		err := cursor.Decode(&category)
+		if err != nil {
+			return nil, err
+		}
+
+		categoryType, err := enums.CategoryTypeParse(category.Type)
+		if err != nil {
+			return nil, err
+		}
+
+		categories = append(categories, &pb.Category{
+			Id:     category.ID,
+			UserId: category.UserId,
+			Name:   category.Name,
+			Type:   *categoryType,
+		})
+	}
+	return &pb.GetCategoriesResp{
+		Categories: categories,
+		TotalCount: totalCount,
+		Limit:      request.Limit,
+	}, nil
+}
+
+func createCategoryFilters(request *pb.GetCategoriesReq) mongo.Pipeline {
+	pipeline := mongo.Pipeline{}
+
+	if request.UserId != "" {
+		pipeline = append(pipeline, bson.D{
+			{Key: "$match", Value: bson.D{
+				{Key: "user_id", Value: request.UserId},
+			}},
+		})
+	}
+	if request.Name != "" {
+		pipeline = append(pipeline, bson.D{
+			{Key: "$match", Value: bson.D{
+				{Key: "name", Value: bson.D{
+					{Key: "$regex", Value: "*." + request.Name + ".*"},
+					{Key: "$options", Value: "i"},
+				}},
+			}},
+		})
+	}
+	// if request.Type!= "" {
+	// 	pipeline = append(pipeline, bson.D{
+	//         {Key: "$match", Value: bson.D{
+	//             {Key: "type", Value: request.Type},
+	//         }},
+	//     })
+	// }
+
+	pipeline = append(pipeline, bson.D{
+		{Key: "deleted_at", Value: nil},
+	})
+	return pipeline
 }

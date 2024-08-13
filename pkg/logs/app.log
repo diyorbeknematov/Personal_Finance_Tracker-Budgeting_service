@@ -1,0 +1,21 @@
+{"time":"2024-08-12T19:33:36.970505665+05:00","level":"INFO","msg":"Starting gRPC server..."}
+{"time":"2024-08-12T19:33:36.970706478+05:00","level":"INFO","msg":"Listening on port","port":50052}
+{"time":"2024-08-12T19:33:46.976053228+05:00","level":"ERROR","msg":"Error reading message","topic":"budgeting","group_id":"budgeting-service","error":"fetching message: failed to dial: failed to open connection to kafka:9092: dial tcp: lookup kafka on 127.0.0.53:53: server misbehaving"}
+{"time":"2024-08-12T19:46:31.287825732+05:00","level":"INFO","msg":"Starting gRPC server..."}
+{"time":"2024-08-12T19:46:31.287988078+05:00","level":"INFO","msg":"Listening on port","port":50052}
+{"time":"2024-08-12T19:46:41.292623538+05:00","level":"ERROR","msg":"Error reading message","topic":"budgeting","group_id":"budgeting-service","error":"fetching message: failed to dial: failed to open connection to kafka:9092: dial tcp: lookup kafka on 127.0.0.53:53: server misbehaving"}
+{"time":"2024-08-12T20:03:14.891651582+05:00","level":"INFO","msg":"Starting gRPC server..."}
+{"time":"2024-08-12T20:03:14.891822878+05:00","level":"INFO","msg":"Listening on port","port":50052}
+{"time":"2024-08-12T20:03:24.898380865+05:00","level":"ERROR","msg":"Error reading message","topic":"budgeting","group_id":"budgeting-service","error":"fetching message: failed to dial: failed to open connection to kafka:9092: dial tcp: lookup kafka on 127.0.0.53:53: server misbehaving"}
+{"time":"2024-08-12T20:08:20.245265636+05:00","level":"INFO","msg":"Starting gRPC server..."}
+{"time":"2024-08-12T20:08:20.245512584+05:00","level":"INFO","msg":"Listening on port","port":50051}
+{"time":"2024-08-12T20:08:30.251308016+05:00","level":"ERROR","msg":"Error reading message","topic":"budgeting","group_id":"budgeting-service","error":"fetching message: failed to dial: failed to open connection to kafka:9092: dial tcp: lookup kafka on 127.0.0.53:53: server misbehaving"}
+{"time":"2024-08-12T20:10:47.970185622+05:00","level":"INFO","msg":"Starting gRPC server..."}
+{"time":"2024-08-12T20:10:47.97034862+05:00","level":"INFO","msg":"Listening on port","port":50051}
+{"time":"2024-08-12T20:10:57.976259654+05:00","level":"ERROR","msg":"Error reading message","topic":"budgeting","group_id":"budgeting-service","error":"fetching message: failed to dial: failed to open connection to kafka:9092: dial tcp: lookup kafka on 127.0.0.53:53: server misbehaving"}
+{"time":"2024-08-13T10:00:35.743228433+05:00","level":"INFO","msg":"Starting gRPC server..."}
+{"time":"2024-08-13T10:00:35.743341386+05:00","level":"INFO","msg":"Listening on port","port":50051}
+{"time":"2024-08-13T10:00:45.747177704+05:00","level":"ERROR","msg":"Error reading message","topic":"budgeting","group_id":"budgeting-service","error":"fetching message: failed to dial: failed to open connection to kafka:9092: dial tcp: lookup kafka on 127.0.0.53:53: server misbehaving"}
+{"time":"2024-08-13T10:02:39.981157084+05:00","level":"ERROR","msg":"Get budget error","error":"budget not found"}
+{"time":"2024-08-13T10:05:15.14230653+05:00","level":"ERROR","msg":"Create budget error","error":"parsing time \"string\" as \"2006-01-02 15:04:05\": cannot parse \"string\" as \"2006\""}
+{"time":"2024-08-13T10:05:52.589833137+05:00","level":"ERROR","msg":"Create budget error","error":"parsing time \"string\" as \"2006-01-02 15:04:05\": cannot parse \"string\" as \"2006\""}

@@ -159,5 +159,130 @@ func (repo *transactionRepositoryImpl) GetTransaction(ctx context.Context, reque
 }
 
 func (repo *transactionRepositoryImpl) GetTransactionsList(ctx context.Context, request *pb.GetTransactionsListReq) (*pb.GetTransactionsListResp, error) {
-	return nil, nil
+	pipeline := createTransactionFilter(request)
+
+	totalCount, err := repo.coll.CountDocuments(ctx, pipeline)
+	if err != nil {
+		return nil, err
+	}
+	pipeline = append(pipeline, bson.D{{Key: "$skip", Value: (request.Page - 1) * request.Limit}})
+	pipeline = append(pipeline, bson.D{{Key: "$limit", Value: request.Limit}})
+
+	cursor, err := repo.coll.Aggregate(ctx, pipeline)
+	if err != nil {
+		return nil, err
+	}
+	var transactions []*pb.Transaction
+	if cursor.Next(ctx) {
+		var transaction models.GetTransaction
+		err := cursor.Decode(&transaction)
+		if err != nil {
+			return nil, err
+		}
+		typeTrnsaction, err := enums.TypeTrnsactionParse(transaction.Type)
+		if err != nil {
+			return nil, err
+		}
+		transactions = append(transactions, &pb.Transaction{
+			Id:          transaction.Id,
+			AccountId:   transaction.AccountId,
+			UserId:      transaction.UserId,
+			Type:        *typeTrnsaction,
+			Amount:      transaction.Amount,
+			Description: transaction.Description,
+			Date:        transaction.Date.Format("2006-01-02 15:04:05"),
+		})
+	}
+	if err := cursor.Err(); err != nil {
+		return nil, err
+	}
+
+	return &pb.GetTransactionsListResp{
+		TotalCount:   totalCount,
+		Transactions: transactions,
+		Page:         request.Page,
+		Limit:        request.Limit,
+	}, nil
+}
+
+func createTransactionFilter(request *pb.GetTransactionsListReq) mongo.Pipeline {
+	var pipeline mongo.Pipeline
+	if request.UserId != "" {
+		pipeline = append(pipeline, bson.D{
+			{Key: "$match", Value: bson.D{
+				{Key: "user_id", Value: request.UserId},
+			}},
+		})
+	}
+
+	if request.AccountName != "" {
+		pipeline = append(pipeline, bson.D{
+			{Key: "$lookup", Value: bson.D{
+				{Key: "from", Value: "accounts"},
+				{Key: "localField", Value: "account_id"},
+				{Key: "foreignField", Value: "_id"},
+				{Key: "as", Value: "account"},
+			}},
+		})
+		pipeline = append(pipeline, bson.D{
+			{Key: "$unwind", Value: "$account"},
+		})
+		pipeline = append(pipeline, bson.D{
+			{Key: "$match", Value: bson.D{
+				{Key: "account.name", Value: bson.D{
+					{Key: "$regex", Value: "*." + request.AccountName + ".*"},
+					{Key: "$options", Value: "i"},
+				}},
+			}},
+		})
+	}
+
+	if request.CategoryName != "" {
+		pipeline = append(pipeline, bson.D{
+			{Key: "$lookup", Value: bson.D{
+				{Key: "from", Value: "categories"},
+				{Key: "localField", Value: "category_id"},
+				{Key: "foreignField", Value: "_id"},
+				{Key: "as", Value: "category"},
+			}},
+		})
+		pipeline = append(pipeline, bson.D{
+			{Key: "$unwind", Value: "$category"},
+		})
+		pipeline = append(pipeline, bson.D{
+			{Key: "$match", Value: bson.D{
+				{Key: "category.name", Value: bson.D{
+					{Key: "$regex", Value: "*." + request.CategoryName + ".*"},
+					{Key: "$options", Value: "i"},
+				}},
+			}},
+		})
+	}
+
+	if request.Amount != 0 {
+		pipeline = append(pipeline, bson.D{
+			{Key: "$match", Value: bson.D{
+				{Key: "amount", Value: bson.D{
+					{Key: "$gte", Value: request.Amount},
+				}},
+			}},
+		})
+	}
+
+	if request.Description != "" {
+		pipeline = append(pipeline, bson.D{
+			{Key: "$match", Value: bson.D{
+				{Key: "description", Value: bson.D{
+					{Key: "$regex", Value: "*." + request.Description + ".*"},
+					{Key: "$options", Value: "i"},
+				}},
+			}},
+		})
+	}
+
+	pipeline = append(pipeline, bson.D{
+		{Key: "delete_at", Value: nil},
+	})
+
+	return pipeline
 }

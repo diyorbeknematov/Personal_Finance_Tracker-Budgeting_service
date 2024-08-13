@@ -128,7 +128,108 @@ func (repo *accountRepositoryImpl) GetAccount(ctx context.Context, request *pb.G
 }
 
 func (repo *accountRepositoryImpl) GetAccountsList(ctx context.Context, request *pb.GetAccountsListReq) (*pb.GetAccountsListResp, error) {
-	return nil, nil
+	pipeline := createFilters(request)
+
+	totalCount, err := repo.coll.CountDocuments(ctx, pipeline)
+	if err != nil {
+		return nil, err
+	}
+
+	pipeline = append(pipeline, bson.D{{Key: "$skip", Value: (request.Offset - 1) * request.Limit}})
+	pipeline = append(pipeline, bson.D{{Key: "$limit", Value: request.Limit}})
+
+	cursor, err := repo.coll.Aggregate(ctx, pipeline)
+	if err != nil {
+		return nil, err
+	}
+
+	var accounts []*pb.Account
+	for cursor.Next(ctx) {
+		var account pb.Account
+		err := cursor.Decode(&account)
+		if err != nil {
+			return nil, err
+		}
+		accounts = append(accounts, &account)
+	}
+	if err := cursor.Close(ctx); err != nil {
+		return nil, err
+	}
+
+	return &pb.GetAccountsListResp{
+		Limit:      request.Limit,
+		Offset:     request.Offset,
+		TotalCount: totalCount,
+		Accounts:   accounts,
+	}, nil
+}
+
+func createFilters(request *pb.GetAccountsListReq) mongo.Pipeline {
+	pipeline := mongo.Pipeline{}
+	if request.UserId != "" {
+		pipeline = append(pipeline, bson.D{{
+			Key: "$match", Value: bson.D{
+				{Key: "user_id", Value: request.UserId},
+			}},
+		})
+	}
+	if request.Name != "" {
+		pipeline = append(pipeline, bson.D{
+			{Key: "$match", Value: bson.D{
+				{Key: "name", Value: bson.D{
+					{Key: "$regex", Value: ".*" + request.Name + ".*"},
+					{Key: "$options", Value: "i"},
+				}},
+			}},
+		})
+	}
+
+	if request.Type != "" {
+		pipeline = append(pipeline, bson.D{
+			{Key: "$match", Value: bson.D{
+				{Key: "type", Value: request.Type},
+			}},
+		})
+	}
+
+	if request.Currency != "" {
+		pipeline = append(pipeline, bson.D{
+			{Key: "$match", Value: bson.D{
+				{Key: "currency", Value: bson.D{
+					{Key: "$regex", Value: ".*" + request.Currency + ".*"},
+					{Key: "$options", Value: "i"},
+				}},
+			}},
+		})
+	}
+
+	if request.Balance != 0 {
+		pipeline = append(pipeline, bson.D{
+			{Key: "$match", Value: bson.D{
+				{Key: "balance", Value: bson.D{
+					{Key: "$gte", Value: request.Balance},
+				}},
+			}},
+		})
+	}
+
+	if request.CreatedAt {
+		now := time.Now()
+		oneMonthAgo := now.AddDate(0, -1, 0)
+		pipeline = append(pipeline, bson.D{{
+			Key: "$match", Value: bson.D{
+				{Key: "created_at", Value: bson.D{
+					{Key: "$gte", Value: oneMonthAgo},
+				}},
+			}},
+		})
+	}
+
+	pipeline = append(pipeline, bson.D{
+		{Key: "deleted_at", Value: nil},
+	})
+
+	return pipeline
 }
 
 // < --- END OF Account  Implementation --- >

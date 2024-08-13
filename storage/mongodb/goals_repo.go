@@ -38,7 +38,7 @@ func (repo *goalsRepositoryImpl) CreateGoal(ctx context.Context, goal *pb.Create
 	}
 	_, err = repo.coll.InsertOne(ctx, bson.D{
 		{Key: "_id", Value: uuid.NewString()},
-		{Key: "userId", Value: goal.UserId},
+		{Key: "user_id", Value: goal.UserId},
 		{Key: "name", Value: goal.Name},
 		{Key: "target_amount", Value: goal.TargetAmount},
 		{Key: "current_amount", Value: 0},
@@ -162,12 +162,17 @@ func (repo *goalsRepositoryImpl) GetGoal(ctx context.Context, request *pb.GetGoa
 }
 
 func (repo *goalsRepositoryImpl) GetGoalsList(ctx context.Context, request *pb.GetGoalsReq) (*pb.GetGoalsResp, error) {
-	filter := bson.D{
-		{Key: "userId", Value: request.UserId},
-		{Key: "deleted_at", Value: nil},
+	pipeline := createGoalFilters(request)
+
+	totalCount, err := repo.coll.CountDocuments(ctx, pipeline)
+	if err != nil {
+		return nil, err
 	}
 
-	cursor, err := repo.coll.Find(ctx, filter)
+	pipeline = append(pipeline, bson.D{{Key: "$skip", Value: (request.Page-1)*request.Limit}})
+	pipeline = append(pipeline, bson.D{{Key: "$limit", Value: request.Limit}})
+
+	cursor, err := repo.coll.Aggregate(ctx, pipeline)
 	if err != nil {
 		return nil, err
 	}
@@ -199,5 +204,52 @@ func (repo *goalsRepositoryImpl) GetGoalsList(ctx context.Context, request *pb.G
 
 	return &pb.GetGoalsResp{
 		Goals: goals,
+		TotalCount: totalCount,
+		Page: request.Page,
+		Limit: request.Limit,
 	}, nil
+}
+
+func createGoalFilters(request *pb.GetGoalsReq) mongo.Pipeline {
+	pipline := mongo.Pipeline{}
+	if request.UserId != "" {
+		pipline = append(pipline, bson.D{
+			{Key: "$match", Value: bson.D{
+				{Key: "user_id", Value: request.UserId},
+			}},
+		})
+	}
+	if request.Name != "" {
+		pipline = append(pipline, bson.D{
+			{Key: "$match", Value: bson.D{
+				{Key: "$regex", Value: ".*" + request.Name + ".*"},
+				{Key: "$options", Value: "i"},
+			}},
+		})
+	}
+	if request.TargetAmount != 0 {
+		pipline = append(pipline, bson.D{
+			{Key: "$match", Value: bson.D{
+				{Key: "target_amount", Value: request.TargetAmount},
+			}},
+		})
+	}
+	if request.Deadline != "" {
+		deadline, err := time.Parse("2006-01-02 15:04:05", request.Deadline)
+		if err == nil {
+			pipline = append(pipline, bson.D{
+				{Key: "$match", Value: bson.D{
+					{Key: "deadline", Value: bson.D{
+						{Key: "$gte", Value: deadline},
+						{Key: "$lte", Value: time.Now()},
+					}},
+				}},
+			})
+		}
+	}
+
+	pipline = append(pipline, bson.D{
+		{Key: "delete_at", Value: nil},
+	})
+	return pipline
 }

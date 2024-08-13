@@ -159,7 +159,88 @@ func (repo *budgetManagementRepoImpl) DeleteBudget(ctx context.Context, req *pb.
 	}, nil
 }
 
-
 func (repo *budgetManagementRepoImpl) GetBudgetsList(ctx context.Context, budget *pb.GetBudgetsReq) (*pb.GetBudgetsResp, error) {
-	return nil, nil
-}	
+	pipeline := createBudgetFilters(budget)
+	totalCount, err := repo.coll.CountDocuments(ctx, pipeline)
+	if err != nil {
+		return nil, err
+	}
+
+	pipeline = append(pipeline, bson.D{{Key: "$skip", Value: (budget.Page-1)*budget.Limit}})
+	pipeline = append(pipeline, bson.D{{Key: "$limit", Value: budget.Limit}})
+
+	cursor, err := repo.coll.Aggregate(ctx, pipeline)
+	if err != nil {
+		return nil, err
+	}
+	var budgets []*pb.Budget
+	for cursor.Next(ctx) {
+		var budget models.GetBudget
+        err := cursor.Decode(&budget)
+        if err!= nil {
+            return nil, err
+        }
+        period, err := enums.PeriodParse(budget.Period)
+        if err!= nil {
+            return nil, err
+        }
+        budgets = append(budgets, &pb.Budget{
+            Id:         budget.ID,
+            UserId:     budget.UserId,
+            CategoryId: budget.CategoryId,
+            Amount:     budget.Amount,
+            Period:     *period,
+            StartDate:  budget.StartDate.Format("2006-01-02 15:04:05"),
+            EndDate:    budget.EndDate.Format("2006-01-02 15:04:05"),
+        })
+	}
+	if err := cursor.Close(ctx); err!= nil {
+        return nil, err
+    }
+	return &pb.GetBudgetsResp{
+        Budgets: budgets,
+        TotalCount: totalCount,
+    }, nil
+}
+
+func createBudgetFilters(request *pb.GetBudgetsReq) mongo.Pipeline {
+	var pipeline mongo.Pipeline
+	if request.UserId != "" {
+		pipeline = append(pipeline, bson.D{
+			{Key: "$match", Value: bson.D{
+				{Key: "user_id", Value: request.UserId},
+			}},
+		})
+	}
+	if request.CategoreName != "" {
+		pipeline = append(pipeline, bson.D{
+			{Key: "$lookup", Value: bson.D{
+				{Key: "from", Value: "categories"},
+				{Key: "localField", Value: "category_id"},
+				{Key: "foreignField", Value: "_id"},
+				{Key: "as", Value: "category"},
+			}},
+		})
+		pipeline = append(pipeline, bson.D{
+			{Key: "$unwind", Value: "$category"},
+		})
+		pipeline = append(pipeline, bson.D{
+			{Key: "$match", Value: bson.D{
+				{Key: "$regex", Value: "*." + request.CategoreName + "*"},
+				{Key: "$options", Value: "i"},
+			}},
+		})
+	}
+
+	if request.Amount != 0 {
+		pipeline = append(pipeline, bson.D{
+			{Key: "$match", Value: bson.D{
+				{Key: "$gte", Value: bson.D{
+					{Key: "amount", Value: request.Amount},
+				}},
+			}},
+		})
+	}
+
+	return pipeline
+}

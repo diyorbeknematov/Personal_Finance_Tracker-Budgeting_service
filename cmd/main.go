@@ -7,6 +7,7 @@ import (
 	"budgeting-service/service"
 	"budgeting-service/storage"
 	"budgeting-service/storage/mongodb"
+	"budgeting-service/storage/redis"
 	"context"
 	"fmt"
 	"log"
@@ -19,14 +20,17 @@ func main() {
 	log.Println("Starting budgeting-service...")
 	logger := logs.InitLogger()
 	cfg := config.Load()
+	
 	log.Println("Initializing MongoDB connection...")
-
 	db, err := mongodb.ConnectToMongoDB()
 	if err != nil {
 		log.Fatalf("Error connecting to MongoDB: %v", err)
 	}
 
-	storage := storage.NewStorage(db)
+	log.Println("Initializing Redis connection...")
+	rdb := redis.ConnectToRedis()
+
+	storage := storage.NewStorage(rdb, db)
 
 	listener, err := net.Listen("tcp",
 		fmt.Sprintf(":%d", cfg.GRPC_PORT),

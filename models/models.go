@@ -48,3 +48,8 @@ type GetGoal struct {
 	Deadline      time.Time `bson:"deadline"`
 	Status        string    `bson:"status"`
 }
+
+type Balance struct {
+	AccountId string  `bson:"account_id"`
+	Balance   float64 `bson:"balance"`
+}

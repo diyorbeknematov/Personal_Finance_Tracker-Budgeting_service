@@ -2,7 +2,9 @@ package storage
 
 import (
 	"budgeting-service/storage/mongodb"
+	rdb "budgeting-service/storage/redis"
 
+	"github.com/redis/go-redis/v9"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
@@ -15,35 +17,37 @@ type IStorage interface {
 }
 
 type storageImpl struct {
-	// redis *RedisStorage
+	redis *redis.Client
 	mongo *mongo.Database
 }
 
-func NewStorage(db *mongo.Database) IStorage {
+func NewStorage(client *redis.Client, db *mongo.Database) IStorage {
 	return &storageImpl{
-		// redis: &RedisStorage{},
+		redis: client,
 		mongo: db,
 	}
 }
 
-// func (s *storageImpl) GetRedisStorage() *RedisStorage {}
+func (s *storageImpl) AccountBalance() rdb.BalanceRepository {
+	return rdb.NewAccountBalance(s.redis)
+}
 
 func (s *storageImpl) AccountRepository() mongodb.AccountRepository {
 	return mongodb.NewAccountRepository(s.mongo)
 }
 
 func (s *storageImpl) TransactionRepository() mongodb.TransactionRepository {
-    return mongodb.NewTransactionRepository(s.mongo)
+	return mongodb.NewTransactionRepository(s.mongo)
 }
 
 func (s *storageImpl) BudgetManagementRepo() mongodb.BudgetManagementRepo {
-    return mongodb.NewBudgetManagementRepo(s.mongo)
+	return mongodb.NewBudgetManagementRepo(s.mongo)
 }
 
 func (s *storageImpl) CategoryRepository() mongodb.CategoryRepository {
-    return mongodb.NewCategoryRepository(s.mongo)
+	return mongodb.NewCategoryRepository(s.mongo)
 }
 
 func (s *storageImpl) GoalsRepository() mongodb.GoalsRepository {
-    return mongodb.NewGoalsRepository(s.mongo)
+	return mongodb.NewGoalsRepository(s.mongo)
 }

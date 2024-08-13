@@ -3,7 +3,6 @@ package mongodb
 import (
 	pb "budgeting-service/generated/budgeting"
 	"context"
-	"log"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
@@ -242,17 +241,21 @@ func (repo *reportingRepositoryImpl) GetBudgetPerformance(ctx context.Context, r
 		}},
 	}
 
-	// MongoDB aggregate queryni bajaring
 	cursor, err := repo.db.Collection("budgets").Aggregate(ctx, pipeline)
 	if err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
-	var results pb.BudgetPerformance
+	var results []*pb.BudgetPerformance
 	if err = cursor.All(ctx, &results); err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
 
-	return &pb.GetBudgetPerformanceResp{}, nil
+	return &pb.GetBudgetPerformanceResp{
+		UserId:                request.UserId,
+		Year:                  request.Year,
+		Month:                 request.Month,
+		BudgetPerformanceList: results,
+	}, nil
 }
 
 func (repo *reportingRepositoryImpl) GetGoalsProgress(ctx context.Context, request *pb.GetGoalProgressReq) (*pb.GetGoalProgressResp, error) {
@@ -263,7 +266,6 @@ func (repo *reportingRepositoryImpl) GetGoalsProgress(ctx context.Context, reque
 				{Key: "status", Value: "in_progress"},
 			},
 		}},
-		// Accounts to'plami orqali bog'lanish
 		bson.D{{
 			Key: "$lookup", Value: bson.D{
 				{Key: "from", Value: "accounts"},
@@ -278,7 +280,6 @@ func (repo *reportingRepositoryImpl) GetGoalsProgress(ctx context.Context, reque
 				{Key: "preserveNullAndEmptyArrays", Value: true},
 			},
 		}},
-		// Transactions to'plami orqali bog'lanish
 		bson.D{{
 			Key: "$lookup", Value: bson.D{
 				{Key: "from", Value: "transactions"},
@@ -293,7 +294,6 @@ func (repo *reportingRepositoryImpl) GetGoalsProgress(ctx context.Context, reque
 				{Key: "preserveNullAndEmptyArrays", Value: true},
 			},
 		}},
-
 		bson.D{{
 			Key: "$group", Value: bson.D{
 				{Key: "_id", Value: "$_id"},
@@ -307,12 +307,14 @@ func (repo *reportingRepositoryImpl) GetGoalsProgress(ctx context.Context, reque
 
 	cursor, err := repo.db.Collection("goals").Aggregate(ctx, pipeline)
 	if err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
 
-	var results pb.GetGoalProgressResp
+	var results []*pb.GoalProgress
 	if err = cursor.All(ctx, &results); err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
-	return &results, nil
+	return &pb.GetGoalProgressResp{
+		GoalProgress: results,
+	}, nil
 }

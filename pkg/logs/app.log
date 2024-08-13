@@ -19,3 +19,11 @@
 {"time":"2024-08-13T10:02:39.981157084+05:00","level":"ERROR","msg":"Get budget error","error":"budget not found"}
 {"time":"2024-08-13T10:05:15.14230653+05:00","level":"ERROR","msg":"Create budget error","error":"parsing time \"string\" as \"2006-01-02 15:04:05\": cannot parse \"string\" as \"2006\""}
 {"time":"2024-08-13T10:05:52.589833137+05:00","level":"ERROR","msg":"Create budget error","error":"parsing time \"string\" as \"2006-01-02 15:04:05\": cannot parse \"string\" as \"2006\""}
+{"time":"2024-08-13T15:48:43.063123118+05:00","level":"INFO","msg":"Starting gRPC server..."}
+{"time":"2024-08-13T15:48:43.063287832+05:00","level":"INFO","msg":"Listening on port","port":50051}
+{"time":"2024-08-13T15:48:44.468689359+05:00","level":"ERROR","msg":"Error reading message","topic":"transactions","group_id":"","error":"fetching message: failed to dial: failed to open connection to localhost:9092: dial tcp 127.0.0.1:9092: connect: connection refused"}
+{"time":"2024-08-13T15:48:44.468839353+05:00","level":"ERROR","msg":"Error reading message","topic":"budgets","group_id":"","error":"fetching message: failed to dial: failed to open connection to localhost:9092: dial tcp 127.0.0.1:9092: connect: connection refused"}
+{"time":"2024-08-13T15:48:44.469058052+05:00","level":"ERROR","msg":"Error consuming messages","error":"fetching message: failed to dial: failed to open connection to localhost:9092: dial tcp 127.0.0.1:9092: connect: connection refused"}
+{"time":"2024-08-13T15:48:44.469211552+05:00","level":"ERROR","msg":"Error consuming messages","error":"fetching message: failed to dial: failed to open connection to localhost:9092: dial tcp 127.0.0.1:9092: connect: connection refused"}
+{"time":"2024-08-13T15:52:12.367635302+05:00","level":"INFO","msg":"Starting gRPC server..."}
+{"time":"2024-08-13T15:52:12.368283645+05:00","level":"INFO","msg":"Listening on port","port":50051}

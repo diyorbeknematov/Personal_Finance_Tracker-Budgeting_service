@@ -2,6 +2,7 @@ package service
 
 import (
 	pb "budgeting-service/generated/budgeting"
+	"budgeting-service/models"
 	"budgeting-service/storage"
 	"context"
 	"log/slog"
@@ -85,6 +86,14 @@ func (s *financeManagementServiceImpl) CreateTransaction(ctx context.Context, re
 	resp, err := s.storage.TransactionRepository().CreateTransaction(ctx, req)
 	if err != nil {
 		s.logger.Error("Create transaction error", "error", err)
+		return resp, err
+	}
+	err = s.storage.AccountBalance().SetBalance(ctx, models.Balance{
+		AccountId: req.GetAccountId(),
+		Balance:   -req.GetAmount(),
+	})
+	if err != nil {
+		s.logger.Error("Set balance error", "error", err)
 		return resp, err
 	}
 	return resp, nil

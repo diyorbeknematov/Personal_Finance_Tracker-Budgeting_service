@@ -14,6 +14,7 @@ type IStorage interface {
 	BudgetManagementRepo() mongodb.BudgetManagementRepo
 	CategoryRepository() mongodb.CategoryRepository
 	GoalsRepository() mongodb.GoalsRepository
+	AccountBalance() rdb.AccountBalanceRepository
 }
 
 type storageImpl struct {
@@ -28,7 +29,7 @@ func NewStorage(client *redis.Client, db *mongo.Database) IStorage {
 	}
 }
 
-func (s *storageImpl) AccountBalance() rdb.BalanceRepository {
+func (s *storageImpl) AccountBalance() rdb.AccountBalanceRepository {
 	return rdb.NewAccountBalance(s.redis)
 }
 

@@ -53,3 +53,13 @@ type Balance struct {
 	AccountId string  `bson:"account_id"`
 	Balance   float64 `bson:"balance"`
 }
+
+type Transaction struct {
+	AccountId   string    `bson:"account_id"`
+	UserId      string    `bson:"user_id"`
+	CategoryId  string    `bson:"category_id"`
+	Type        string    `bson:"type"`
+	Amount      float64   `bson:"amount"`
+	Description string    `bson:"description"`
+	Date        time.Time `bson:"date"`
+}

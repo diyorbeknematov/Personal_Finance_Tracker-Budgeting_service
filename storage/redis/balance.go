@@ -3,19 +3,22 @@ package redis
 import (
 	"budgeting-service/models"
 	"context"
+	"errors"
 	"time"
 
 	"github.com/redis/go-redis/v9"
 )
 
-type BalanceRepository interface {
+type AccountBalanceRepository interface {
+	SetBalance(ctx context.Context, balance models.Balance) error
+	GetBalance(ctx context.Context, accountId string) (*models.Balance, error)
 }
 
 type accountBalanceImpl struct {
 	client *redis.Client
 }
 
-func NewAccountBalance(rdb *redis.Client) BalanceRepository {
+func NewAccountBalance(rdb *redis.Client) AccountBalanceRepository {
 	return &accountBalanceImpl{client: rdb}
 }
 
@@ -34,4 +37,15 @@ func (repo *accountBalanceImpl) GetBalance(ctx context.Context, accountId string
 		AccountId: accountId,
 		Balance:   balance,
 	}, nil
+}
+
+func (repo *accountBalanceImpl) UpdateBalance(ctx context.Context, newBalance models.Balance) error {
+	balance, err := repo.client.Get(ctx, "balance:"+newBalance.AccountId).Float64()
+	if err == redis.Nil {
+		return errors.New("account not found")
+	} else if err != nil {
+		return err
+	}
+	newBalance.Balance = balance + newBalance.Balance
+	return repo.client.Set(ctx, "balance:"+newBalance.AccountId, newBalance.Balance, 10*time.Minute).Err()
 }

@@ -20,7 +20,7 @@ func main() {
 	log.Println("Starting budgeting-service...")
 	logger := logs.InitLogger()
 	cfg := config.Load()
-	
+
 	log.Println("Initializing MongoDB connection...")
 	db, err := mongodb.ConnectToMongoDB()
 	if err != nil {
@@ -43,15 +43,11 @@ func main() {
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
-	go func() {
-		log.Println("Kafka consumer...")
-		reader := consumer.NewKafkaConsumer(cfg.KafkaBrokers, cfg.KafkaTopic, cfg.KafkaGroupId, logger)
-		defer reader.Close()
-		err := reader.ConsumeMessages(ctx, func(message []byte) {})
-		if err != nil {
-			log.Printf("Error consuming messages: %v", err)
-		}
-	}()
+	msgService := service.NewMsgBrokerService(storage, logger)
+	kafka := consumer.NewKafkaMethods([]string{"localhost:9092"}, msgService, logger)
+
+	go kafka.CreateTransaction(ctx, "transactions")
+	go kafka.UpdateBudget(ctx, "budgets")
 
 	service := service.NewServiceManager(listener, grpcServer)
 	service.RegisterServiceManagerServer(storage, logger)

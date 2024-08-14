@@ -26,6 +26,8 @@ const (
 	ReportingNotificationService_SendNotification_FullMethodName     = "/reporting_notification.ReportingNotificationService/SendNotification"
 	ReportingNotificationService_GetNotificationList_FullMethodName  = "/reporting_notification.ReportingNotificationService/GetNotificationList"
 	ReportingNotificationService_GetNotification_FullMethodName      = "/reporting_notification.ReportingNotificationService/GetNotification"
+	ReportingNotificationService_UpdateNotification_FullMethodName   = "/reporting_notification.ReportingNotificationService/UpdateNotification"
+	ReportingNotificationService_DeleteNotification_FullMethodName   = "/reporting_notification.ReportingNotificationService/DeleteNotification"
 )
 
 // ReportingNotificationServiceClient is the client API for ReportingNotificationService service.
@@ -37,9 +39,11 @@ type ReportingNotificationServiceClient interface {
 	GetBudgetPerformance(ctx context.Context, in *GetBudgetPerformanceReq, opts ...grpc.CallOption) (*GetBudgetPerformanceResp, error)
 	GoalProgress(ctx context.Context, in *GetGoalProgressReq, opts ...grpc.CallOption) (*GetGoalProgressResp, error)
 	// Notification
-	SendNotification(ctx context.Context, in *NotificationReq, opts ...grpc.CallOption) (*NotificationResp, error)
-	GetNotificationList(ctx context.Context, in *GetNotificationReq, opts ...grpc.CallOption) (*GetNotificationResp, error)
-	GetNotification(ctx context.Context, in *GetNotificationByIdReq, opts ...grpc.CallOption) (*GetNotificationByIdResp, error)
+	SendNotification(ctx context.Context, in *SendNotificationReq, opts ...grpc.CallOption) (*SendNotificationResp, error)
+	GetNotificationList(ctx context.Context, in *GetNotificationsListReq, opts ...grpc.CallOption) (*GetNotificationsListResp, error)
+	GetNotification(ctx context.Context, in *GetNotificationReq, opts ...grpc.CallOption) (*GetNotificationResp, error)
+	UpdateNotification(ctx context.Context, in *UpdateNotificationReq, opts ...grpc.CallOption) (*UpdateNotificationResp, error)
+	DeleteNotification(ctx context.Context, in *DeleteNotificationReq, opts ...grpc.CallOption) (*DeleteNotificationResp, error)
 }
 
 type reportingNotificationServiceClient struct {
@@ -90,9 +94,9 @@ func (c *reportingNotificationServiceClient) GoalProgress(ctx context.Context, i
 	return out, nil
 }
 
-func (c *reportingNotificationServiceClient) SendNotification(ctx context.Context, in *NotificationReq, opts ...grpc.CallOption) (*NotificationResp, error) {
+func (c *reportingNotificationServiceClient) SendNotification(ctx context.Context, in *SendNotificationReq, opts ...grpc.CallOption) (*SendNotificationResp, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(NotificationResp)
+	out := new(SendNotificationResp)
 	err := c.cc.Invoke(ctx, ReportingNotificationService_SendNotification_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -100,9 +104,9 @@ func (c *reportingNotificationServiceClient) SendNotification(ctx context.Contex
 	return out, nil
 }
 
-func (c *reportingNotificationServiceClient) GetNotificationList(ctx context.Context, in *GetNotificationReq, opts ...grpc.CallOption) (*GetNotificationResp, error) {
+func (c *reportingNotificationServiceClient) GetNotificationList(ctx context.Context, in *GetNotificationsListReq, opts ...grpc.CallOption) (*GetNotificationsListResp, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(GetNotificationResp)
+	out := new(GetNotificationsListResp)
 	err := c.cc.Invoke(ctx, ReportingNotificationService_GetNotificationList_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -110,10 +114,30 @@ func (c *reportingNotificationServiceClient) GetNotificationList(ctx context.Con
 	return out, nil
 }
 
-func (c *reportingNotificationServiceClient) GetNotification(ctx context.Context, in *GetNotificationByIdReq, opts ...grpc.CallOption) (*GetNotificationByIdResp, error) {
+func (c *reportingNotificationServiceClient) GetNotification(ctx context.Context, in *GetNotificationReq, opts ...grpc.CallOption) (*GetNotificationResp, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(GetNotificationByIdResp)
+	out := new(GetNotificationResp)
 	err := c.cc.Invoke(ctx, ReportingNotificationService_GetNotification_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *reportingNotificationServiceClient) UpdateNotification(ctx context.Context, in *UpdateNotificationReq, opts ...grpc.CallOption) (*UpdateNotificationResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(UpdateNotificationResp)
+	err := c.cc.Invoke(ctx, ReportingNotificationService_UpdateNotification_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *reportingNotificationServiceClient) DeleteNotification(ctx context.Context, in *DeleteNotificationReq, opts ...grpc.CallOption) (*DeleteNotificationResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(DeleteNotificationResp)
+	err := c.cc.Invoke(ctx, ReportingNotificationService_DeleteNotification_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -129,9 +153,11 @@ type ReportingNotificationServiceServer interface {
 	GetBudgetPerformance(context.Context, *GetBudgetPerformanceReq) (*GetBudgetPerformanceResp, error)
 	GoalProgress(context.Context, *GetGoalProgressReq) (*GetGoalProgressResp, error)
 	// Notification
-	SendNotification(context.Context, *NotificationReq) (*NotificationResp, error)
-	GetNotificationList(context.Context, *GetNotificationReq) (*GetNotificationResp, error)
-	GetNotification(context.Context, *GetNotificationByIdReq) (*GetNotificationByIdResp, error)
+	SendNotification(context.Context, *SendNotificationReq) (*SendNotificationResp, error)
+	GetNotificationList(context.Context, *GetNotificationsListReq) (*GetNotificationsListResp, error)
+	GetNotification(context.Context, *GetNotificationReq) (*GetNotificationResp, error)
+	UpdateNotification(context.Context, *UpdateNotificationReq) (*UpdateNotificationResp, error)
+	DeleteNotification(context.Context, *DeleteNotificationReq) (*DeleteNotificationResp, error)
 	mustEmbedUnimplementedReportingNotificationServiceServer()
 }
 
@@ -151,14 +177,20 @@ func (UnimplementedReportingNotificationServiceServer) GetBudgetPerformance(cont
 func (UnimplementedReportingNotificationServiceServer) GoalProgress(context.Context, *GetGoalProgressReq) (*GetGoalProgressResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GoalProgress not implemented")
 }
-func (UnimplementedReportingNotificationServiceServer) SendNotification(context.Context, *NotificationReq) (*NotificationResp, error) {
+func (UnimplementedReportingNotificationServiceServer) SendNotification(context.Context, *SendNotificationReq) (*SendNotificationResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SendNotification not implemented")
 }
-func (UnimplementedReportingNotificationServiceServer) GetNotificationList(context.Context, *GetNotificationReq) (*GetNotificationResp, error) {
+func (UnimplementedReportingNotificationServiceServer) GetNotificationList(context.Context, *GetNotificationsListReq) (*GetNotificationsListResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetNotificationList not implemented")
 }
-func (UnimplementedReportingNotificationServiceServer) GetNotification(context.Context, *GetNotificationByIdReq) (*GetNotificationByIdResp, error) {
+func (UnimplementedReportingNotificationServiceServer) GetNotification(context.Context, *GetNotificationReq) (*GetNotificationResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetNotification not implemented")
+}
+func (UnimplementedReportingNotificationServiceServer) UpdateNotification(context.Context, *UpdateNotificationReq) (*UpdateNotificationResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateNotification not implemented")
+}
+func (UnimplementedReportingNotificationServiceServer) DeleteNotification(context.Context, *DeleteNotificationReq) (*DeleteNotificationResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteNotification not implemented")
 }
 func (UnimplementedReportingNotificationServiceServer) mustEmbedUnimplementedReportingNotificationServiceServer() {
 }
@@ -247,7 +279,7 @@ func _ReportingNotificationService_GoalProgress_Handler(srv interface{}, ctx con
 }
 
 func _ReportingNotificationService_SendNotification_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(NotificationReq)
+	in := new(SendNotificationReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -259,13 +291,13 @@ func _ReportingNotificationService_SendNotification_Handler(srv interface{}, ctx
 		FullMethod: ReportingNotificationService_SendNotification_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ReportingNotificationServiceServer).SendNotification(ctx, req.(*NotificationReq))
+		return srv.(ReportingNotificationServiceServer).SendNotification(ctx, req.(*SendNotificationReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _ReportingNotificationService_GetNotificationList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetNotificationReq)
+	in := new(GetNotificationsListReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -277,13 +309,13 @@ func _ReportingNotificationService_GetNotificationList_Handler(srv interface{}, 
 		FullMethod: ReportingNotificationService_GetNotificationList_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ReportingNotificationServiceServer).GetNotificationList(ctx, req.(*GetNotificationReq))
+		return srv.(ReportingNotificationServiceServer).GetNotificationList(ctx, req.(*GetNotificationsListReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _ReportingNotificationService_GetNotification_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetNotificationByIdReq)
+	in := new(GetNotificationReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -295,7 +327,43 @@ func _ReportingNotificationService_GetNotification_Handler(srv interface{}, ctx 
 		FullMethod: ReportingNotificationService_GetNotification_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ReportingNotificationServiceServer).GetNotification(ctx, req.(*GetNotificationByIdReq))
+		return srv.(ReportingNotificationServiceServer).GetNotification(ctx, req.(*GetNotificationReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ReportingNotificationService_UpdateNotification_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateNotificationReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ReportingNotificationServiceServer).UpdateNotification(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ReportingNotificationService_UpdateNotification_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ReportingNotificationServiceServer).UpdateNotification(ctx, req.(*UpdateNotificationReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ReportingNotificationService_DeleteNotification_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteNotificationReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ReportingNotificationServiceServer).DeleteNotification(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ReportingNotificationService_DeleteNotification_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ReportingNotificationServiceServer).DeleteNotification(ctx, req.(*DeleteNotificationReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -334,6 +402,14 @@ var ReportingNotificationService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetNotification",
 			Handler:    _ReportingNotificationService_GetNotification_Handler,
+		},
+		{
+			MethodName: "UpdateNotification",
+			Handler:    _ReportingNotificationService_UpdateNotification_Handler,
+		},
+		{
+			MethodName: "DeleteNotification",
+			Handler:    _ReportingNotificationService_DeleteNotification_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

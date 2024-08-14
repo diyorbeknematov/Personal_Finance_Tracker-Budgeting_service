@@ -13,6 +13,7 @@ import (
 type MsgBrokerService interface {
 	CreateTransaction(msg []byte)
 	UpdateBudget(msg []byte)
+	SendNotification(msg []byte)
 }
 
 type msBorokerServiceImpl struct {
@@ -65,4 +66,19 @@ func (m *msBorokerServiceImpl) UpdateBudget(msg []byte) {
 		m.logger.Error("Update budget error", "error", err)
 		return
 	}
+}
+
+func (m *msBorokerServiceImpl) SendNotification(msg []byte) {
+	log.Println("Requesting to send notification")
+	var notification pb.SendNotificationReq
+	err := json.Unmarshal(msg, &notification)
+	if err!= nil {
+        m.logger.Error("Error unmarshalling notification message", "error", err)
+        return
+    }
+	_, err = m.storage.NotificationRepository().SendNotification(ctx, &notification)
+	if err!= nil {
+        m.logger.Error("Send notification error", "error", err)
+        return
+    }
 }

@@ -1,12 +1,17 @@
 package redis
 
-import "github.com/redis/go-redis/v9"
+import (
+	"budgeting-service/config"
+	"fmt"
 
-func ConnectToRedis() *redis.Client {
+	"github.com/redis/go-redis/v9"
+)
+
+func ConnectToRedis(cfg *config.Config) *redis.Client {
 	client := redis.NewClient(&redis.Options{
-		Addr:     "localhost:6379",
-		Password: "", // no password set
-		DB:       0,  // use default DB
+		Addr:     fmt.Sprintf("%s:%d", cfg.Redis_HOST, cfg.Redis_PORT),
+		Password: fmt.Sprint(cfg.Redis_PASSWORD),
+		DB:       cfg.Redis_DB,
 	})
 
 	return client

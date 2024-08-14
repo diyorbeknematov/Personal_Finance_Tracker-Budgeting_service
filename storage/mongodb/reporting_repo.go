@@ -2,6 +2,7 @@ package mongodb
 
 import (
 	pb "budgeting-service/generated/budgeting"
+	"budgeting-service/models"
 	"context"
 	"time"
 
@@ -10,6 +11,10 @@ import (
 )
 
 type ReportingRepository interface {
+	GetSependingReport(ctx context.Context, request *pb.GetSependingReq) (*pb.GetSependingResp, error)
+	GetIncomeReport(ctx context.Context, request *pb.GetIncomeReportReq) (*pb.GetIncomeReportResp, error)
+	GetBudgetPerformance(ctx context.Context, request *pb.GetBudgetPerformanceReq) (*pb.GetBudgetPerformanceResp, error)
+	GetGoalsProgress(ctx context.Context, request *pb.GetGoalProgressReq) (*pb.GetGoalProgressResp, error)
 }
 
 type reportingRepositoryImpl struct {
@@ -246,8 +251,23 @@ func (repo *reportingRepositoryImpl) GetBudgetPerformance(ctx context.Context, r
 		return nil, err
 	}
 	var results []*pb.BudgetPerformance
-	if err = cursor.All(ctx, &results); err != nil {
+	for cursor.Next(ctx) {
+		var result models.BudgetPerformance
+		if err := cursor.Decode(&result); err != nil {
+			return nil, err
+		}
+		results = append(results, &pb.BudgetPerformance{
+			CategoryId: result.CategoryId,
+			Target:     result.Target,
+			Actual:     result.Actual,
+			Progress:   result.Progress,
+		})
+	}
+	if err := cursor.Err(); err != nil {
 		return nil, err
+	}
+	if len(results) == 0 {
+		return nil, mongo.ErrNoDocuments
 	}
 
 	return &pb.GetBudgetPerformanceResp{
@@ -300,7 +320,13 @@ func (repo *reportingRepositoryImpl) GetGoalsProgress(ctx context.Context, reque
 				{Key: "name", Value: bson.D{{Key: "$first", Value: "$name"}}},
 				{Key: "target_amount", Value: bson.D{{Key: "$first", Value: "$target_amount"}}},
 				{Key: "current_amount", Value: bson.D{{Key: "$sum", Value: "$related_transactions.amount"}}},
-				{Key: "progress", Value: bson.D{{Key: "$multiply", Value: bson.A{bson.D{{Key: "$divide", Value: bson.A{"$current_amount", "$target_amount"}}}, 100}}}},
+			},
+		}},
+		bson.D{{
+			Key: "$addFields", Value: bson.D{
+				{Key: "progress", Value: bson.D{{Key: "$multiply", Value: bson.A{
+					bson.D{{Key: "$divide", Value: bson.A{"$current_amount", "$target_amount"}}}, 100,
+				}}}},
 			},
 		}},
 	}
@@ -311,9 +337,23 @@ func (repo *reportingRepositoryImpl) GetGoalsProgress(ctx context.Context, reque
 	}
 
 	var results []*pb.GoalProgress
-	if err = cursor.All(ctx, &results); err != nil {
-		return nil, err
+	for cursor.Next(ctx) {
+		var result models.GoalProgress
+		if err := cursor.Decode(&result); err != nil {
+			return nil, err
+		}
+		results = append(results, &pb.GoalProgress{
+			Id:            result.Id,
+            Name:         result.Name,
+            TargetAmount: result.TargetAmount,
+            CurrentAmount: result.CurrentAmount,
+            Progress:     result.Progress,
+		})
 	}
+	if len(results) == 0 {
+		return nil, mongo.ErrNoDocuments
+	}
+
 	return &pb.GetGoalProgressResp{
 		GoalProgress: results,
 	}, nil

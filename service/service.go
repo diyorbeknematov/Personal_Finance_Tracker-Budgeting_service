@@ -33,6 +33,7 @@ func (sm *serviceManagerImpl) RegisterServiceManagerServer(storage storage.IStor
 	pb.RegisterBudgetingServiceServer(sm.server, NewBudgetManagementService(storage, logger))
 	pb.RegisterFinanceManagementServiceServer(sm.server, NewFinanceManagementService(storage, logger))
 	pb.RegisterGoalsManagemenServiceServer(sm.server, NewGoalsManagementService(storage, logger))
+	pb.RegisterReportingNotificationServiceServer(sm.server, NewReportingNotificationService(storage, logger))
 }
 
 func (sm *serviceManagerImpl) Start() error {

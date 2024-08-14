@@ -154,7 +154,6 @@ func (repo *transactionRepositoryImpl) GetTransaction(ctx context.Context, reque
 
 func (repo *transactionRepositoryImpl) GetTransactionsList(ctx context.Context, request *pb.GetTransactionsListReq) (*pb.GetTransactionsListResp, error) {
 	pipeline := createTransactionFilter(request)
-
 	// Hujjatlarni sanash uchun `pipeline` ni `Aggregate` bilan ishlating
 	countPipeline := append(pipeline, bson.D{{Key: "$count", Value: "totalCount"}})
 	countCursor, err := repo.coll.Aggregate(ctx, countPipeline)
@@ -198,6 +197,10 @@ func (repo *transactionRepositoryImpl) GetTransactionsList(ctx context.Context, 
 	}
 	if err := cursor.Err(); err != nil {
 		return nil, err
+	}
+
+	if len(transactions) == 0 {
+		return nil, mongo.ErrNoDocuments
 	}
 
 	return &pb.GetTransactionsListResp{
@@ -265,6 +268,17 @@ func createTransactionFilter(request *pb.GetTransactionsListReq) mongo.Pipeline 
 			{Key: "$match", Value: bson.D{
 				{Key: "description", Value: bson.D{
 					{Key: "$regex", Value: ".*" + request.Description + ".*"},
+					{Key: "$options", Value: "i"},
+				}},
+			}},
+		})
+	}
+
+	if request.Type != "" {
+		pipeline = append(pipeline, bson.D{
+			{Key: "$match", Value: bson.D{
+				{Key: "type", Value: bson.D{
+					{Key: "$regex", Value: ".*" + request.Type + ".*"},
 					{Key: "$options", Value: "i"},
 				}},
 			}},

@@ -197,6 +197,10 @@ func (repo *budgetManagementRepoImpl) GetBudgetsList(ctx context.Context, budget
 	if err := cursor.Close(ctx); err != nil {
 		return nil, err
 	}
+	if len(budgets) == 0 {
+		return nil, fmt.Errorf("budgets not found")
+	}
+
 	return &pb.GetBudgetsResp{
 		Budgets:    budgets,
 		TotalCount: int64(totalCount),
@@ -230,17 +234,55 @@ func createBudgetFilters(request *pb.GetBudgetsReq) mongo.Pipeline {
 		})
 		pipeline = append(pipeline, bson.D{
 			{Key: "$match", Value: bson.D{
-				{Key: "$regex", Value: "*." + request.CategoreName + "*"},
-				{Key: "$options", Value: "i"},
+				{Key: "category.name", Value: bson.D{
+					{Key: "$regex", Value: ".*" + request.CategoreName + ".*"},
+					{Key: "$options", Value: "i"},
+				}},
 			}},
 		})
 	}
 
+	// Miqdor bo'yicha filter
 	if request.Amount != 0 {
 		pipeline = append(pipeline, bson.D{
 			{Key: "$match", Value: bson.D{
-				{Key: "$gte", Value: bson.D{
-					{Key: "amount", Value: request.Amount},
+				{Key: "amount", Value: bson.D{
+					{Key: "$gte", Value: request.Amount},
+				}},
+			}},
+		})
+	}
+
+	// Davr bo'yicha filter (period)
+	if request.Period != "" {
+		pipeline = append(pipeline, bson.D{
+			{Key: "$match", Value: bson.D{
+				{Key: "period", Value: bson.D{
+					{Key: "$regex", Value: ".*" + request.Period + ".*"},
+					{Key: "$options", Value: "i"},
+				}},
+			}},
+		})
+	}
+
+	if request.StartDate != "" && request.EndDate != "" {
+		startDate, err := time.Parse(time.RFC3339, request.StartDate)
+		if err != nil {
+			return pipeline
+		}
+		endDate, err := time.Parse(time.RFC3339, request.EndDate)
+		if err != nil {
+			// Handle error
+			return pipeline
+		}
+
+		pipeline = append(pipeline, bson.D{
+			{Key: "$match", Value: bson.D{
+				{Key: "start_date", Value: bson.D{
+					{Key: "$gte", Value: startDate},
+				}},
+				{Key: "end_date", Value: bson.D{
+					{Key: "$lte", Value: endDate},
 				}},
 			}},
 		})

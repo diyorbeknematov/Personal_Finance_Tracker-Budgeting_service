@@ -200,6 +200,10 @@ func (repo *goalsRepositoryImpl) GetGoalsList(ctx context.Context, request *pb.G
 		})
 	}
 
+	if len(goals) == 0 {
+		return nil, mongo.ErrNoDocuments
+	}
+
 	return &pb.GetGoalsResp{
 		Goals:      goals,
 		TotalCount: int64(totalCount),

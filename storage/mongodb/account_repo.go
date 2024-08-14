@@ -4,6 +4,7 @@ import (
 	pb "budgeting-service/generated/budgeting"
 	"budgeting-service/models"
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/google/uuid"
@@ -173,6 +174,9 @@ func (repo *accountRepositoryImpl) GetAccountsList(ctx context.Context, request 
 		return nil, err
 	}
 
+	if len(accounts) == 0 {
+		return nil, fmt.Errorf("account not found")
+	}
 	return &pb.GetAccountsListResp{
 		Limit:      request.Limit,
 		Offset:     request.Offset,

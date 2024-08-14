@@ -53,3 +53,17 @@ func (km *kafkaMethodsImpl) UpdateBudget(ctx context.Context, topic string) {
 		return
 	}
 }
+
+func (km *kafkaMethodsImpl) SendNotification(ctx context.Context, topic string) {
+	reader := NewKafkaConsumer(km.brokers, topic, "", km.logger)
+    defer reader.Close()
+
+    log.Println("Starting consumer for topic", topic)
+
+    err := reader.ConsumeMessages(ctx, km.msgBrokerService.SendNotification)
+    if err != nil {
+        km.logger.Error("Error consuming messages", "error", err)
+        log.Println("Error consuming messages", "error", err)
+        return
+    }
+}

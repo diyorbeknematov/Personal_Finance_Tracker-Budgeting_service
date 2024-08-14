@@ -4,6 +4,7 @@ import (
 	pb "budgeting-service/generated/budgeting"
 	"budgeting-service/models"
 	"context"
+	"errors"
 	"time"
 
 	"github.com/google/uuid"
@@ -188,6 +189,10 @@ func (repo *categoryRepositoryImpl) GetCategoriesList(ctx context.Context, reque
 			Name:   category.Name,
 			Type:   category.Type,
 		})
+	}
+
+	if len(categories) == 0 {
+		return nil, errors.New("no categories found")
 	}
 
 	return &pb.GetCategoriesResp{

@@ -28,7 +28,7 @@ func main() {
 	}
 
 	log.Println("Initializing Redis connection...")
-	rdb := redis.ConnectToRedis()
+	rdb := redis.ConnectToRedis(cfg)
 
 	storage := storage.NewStorage(rdb, db)
 
@@ -44,7 +44,7 @@ func main() {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 	msgService := service.NewMsgBrokerService(storage, logger)
-	kafka := consumer.NewKafkaMethods([]string{"localhost:9092"}, msgService, logger)
+	kafka := consumer.NewKafkaMethods(cfg.KafkaBrokers, msgService, logger)
 
 	go kafka.CreateTransaction(ctx, "transactions")
 	go kafka.UpdateBudget(ctx, "budgets")

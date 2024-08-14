@@ -1,0 +1,16 @@
+version: '3.9'
+
+services:
+  budgeting_app:
+    build: .
+    container_name: budgeting_app
+    ports:
+      - 50051:1111
+    networks:
+      - finance_net
+
+networks:
+  finance_net:
+    external: true
+    name: finance_net
+    driver: bridge

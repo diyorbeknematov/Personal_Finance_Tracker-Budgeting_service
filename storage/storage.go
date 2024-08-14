@@ -14,6 +14,8 @@ type IStorage interface {
 	BudgetManagementRepo() mongodb.BudgetManagementRepo
 	CategoryRepository() mongodb.CategoryRepository
 	GoalsRepository() mongodb.GoalsRepository
+	ReportingRepository() mongodb.ReportingRepository
+	NotificationRepository() mongodb.NotificationRepository
 	AccountBalance() rdb.AccountBalanceRepository
 }
 
@@ -47,6 +49,14 @@ func (s *storageImpl) BudgetManagementRepo() mongodb.BudgetManagementRepo {
 
 func (s *storageImpl) CategoryRepository() mongodb.CategoryRepository {
 	return mongodb.NewCategoryRepository(s.mongo)
+}
+
+func (s *storageImpl) ReportingRepository() mongodb.ReportingRepository {
+	return mongodb.NewReportingRepository(s.mongo)
+}
+
+func (s *storageImpl) NotificationRepository() mongodb.NotificationRepository {
+	return mongodb.NewNotificationRepository(s.mongo)
 }
 
 func (s *storageImpl) GoalsRepository() mongodb.GoalsRepository {

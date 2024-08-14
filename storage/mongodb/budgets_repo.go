@@ -3,7 +3,6 @@ package mongodb
 import (
 	pb "budgeting-service/generated/budgeting"
 	"budgeting-service/models"
-	"budgeting-service/pkg/enums"
 	"context"
 	"fmt"
 	"time"
@@ -43,7 +42,7 @@ func (repo *budgetManagementRepoImpl) CreateBudget(ctx context.Context, budget *
 		{Key: "user_id", Value: budget.UserId},
 		{Key: "category_id", Value: budget.CategoryId},
 		{Key: "amount", Value: budget.Amount},
-		{Key: "period", Value: budget.Period.String()},
+		{Key: "period", Value: budget.Period},
 		{Key: "start_date", Value: sdate},
 		{Key: "end_date", Value: edate},
 		{Key: "created_at", Value: time.Now()},
@@ -77,17 +76,12 @@ func (repo *budgetManagementRepoImpl) GetBudget(ctx context.Context, req *pb.Get
 		return nil, err
 	}
 
-	period, err := enums.PeriodParse(budget.Period)
-	if err != nil {
-		return nil, err
-	}
-
 	return &pb.GetBudgetResp{
 		Id:         budget.ID,
 		UserId:     budget.UserId,
 		CategoryId: budget.CategoryId,
 		Amount:     budget.Amount,
-		Period:     *period,
+		Period:     budget.Period,
 		StartDate:  budget.StartDate.Format("2006-01-02 15:04:05"),
 		EndDate:    budget.EndDate.Format("2006-01-02 15:04:05"),
 	}, nil
@@ -102,7 +96,7 @@ func (repo *budgetManagementRepoImpl) UpdateBudget(ctx context.Context, budget *
 	res, err := repo.coll.UpdateOne(ctx, filter, bson.D{
 		{Key: "$set", Value: bson.D{
 			{Key: "amount", Value: budget.Amount},
-			{Key: "period", Value: budget.Period.String()},
+			{Key: "period", Value: budget.Period},
 			{Key: "start_date", Value: budget.StartDate},
 			{Key: "end_date", Value: budget.EndDate},
 			{Key: "updated_at", Value: time.Now()},
@@ -161,12 +155,22 @@ func (repo *budgetManagementRepoImpl) DeleteBudget(ctx context.Context, req *pb.
 
 func (repo *budgetManagementRepoImpl) GetBudgetsList(ctx context.Context, budget *pb.GetBudgetsReq) (*pb.GetBudgetsResp, error) {
 	pipeline := createBudgetFilters(budget)
-	totalCount, err := repo.coll.CountDocuments(ctx, pipeline)
+	// Hujjatlarni sanash uchun `pipeline` ni `Aggregate` bilan ishlating
+	countPipeline := append(pipeline, bson.D{{Key: "$count", Value: "totalCount"}})
+	countCursor, err := repo.coll.Aggregate(ctx, countPipeline)
 	if err != nil {
 		return nil, err
 	}
+	var countResult []bson.M
+	if err = countCursor.All(ctx, &countResult); err != nil {
+		return nil, err
+	}
+	totalCount := int32(0)
+	if len(countResult) > 0 {
+		totalCount = countResult[0]["totalCount"].(int32)
+	}
 
-	pipeline = append(pipeline, bson.D{{Key: "$skip", Value: (budget.Page-1)*budget.Limit}})
+	pipeline = append(pipeline, bson.D{{Key: "$skip", Value: (budget.Page - 1) * budget.Limit}})
 	pipeline = append(pipeline, bson.D{{Key: "$limit", Value: budget.Limit}})
 
 	cursor, err := repo.coll.Aggregate(ctx, pipeline)
@@ -176,35 +180,33 @@ func (repo *budgetManagementRepoImpl) GetBudgetsList(ctx context.Context, budget
 	var budgets []*pb.Budget
 	for cursor.Next(ctx) {
 		var budget models.GetBudget
-        err := cursor.Decode(&budget)
-        if err!= nil {
-            return nil, err
-        }
-        period, err := enums.PeriodParse(budget.Period)
-        if err!= nil {
-            return nil, err
-        }
-        budgets = append(budgets, &pb.Budget{
-            Id:         budget.ID,
-            UserId:     budget.UserId,
-            CategoryId: budget.CategoryId,
-            Amount:     budget.Amount,
-            Period:     *period,
-            StartDate:  budget.StartDate.Format("2006-01-02 15:04:05"),
-            EndDate:    budget.EndDate.Format("2006-01-02 15:04:05"),
-        })
+		err := cursor.Decode(&budget)
+		if err != nil {
+			return nil, err
+		}
+		budgets = append(budgets, &pb.Budget{
+			Id:         budget.ID,
+			UserId:     budget.UserId,
+			CategoryId: budget.CategoryId,
+			Amount:     budget.Amount,
+			Period:     budget.Period,
+			StartDate:  budget.StartDate.Format("2006-01-02 15:04:05"),
+			EndDate:    budget.EndDate.Format("2006-01-02 15:04:05"),
+		})
 	}
-	if err := cursor.Close(ctx); err!= nil {
-        return nil, err
-    }
+	if err := cursor.Close(ctx); err != nil {
+		return nil, err
+	}
 	return &pb.GetBudgetsResp{
-        Budgets: budgets,
-        TotalCount: totalCount,
-    }, nil
+		Budgets:    budgets,
+		TotalCount: int64(totalCount),
+	}, nil
 }
 
 func createBudgetFilters(request *pb.GetBudgetsReq) mongo.Pipeline {
 	var pipeline mongo.Pipeline
+
+	// Foydalanuvchi ID bo'yicha filter
 	if request.UserId != "" {
 		pipeline = append(pipeline, bson.D{
 			{Key: "$match", Value: bson.D{
@@ -212,6 +214,8 @@ func createBudgetFilters(request *pb.GetBudgetsReq) mongo.Pipeline {
 			}},
 		})
 	}
+
+	// Kategoriya nomi bo'yicha filter
 	if request.CategoreName != "" {
 		pipeline = append(pipeline, bson.D{
 			{Key: "$lookup", Value: bson.D{

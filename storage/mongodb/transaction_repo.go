@@ -3,7 +3,6 @@ package mongodb
 import (
 	pb "budgeting-service/generated/budgeting"
 	"budgeting-service/models"
-	"budgeting-service/pkg/enums"
 	"context"
 	"time"
 
@@ -37,7 +36,7 @@ func (repo *transactionRepositoryImpl) CreateTransaction(ctx context.Context, tr
 		{Key: "_id", Value: uuid.NewString()},
 		{Key: "account_id", Value: transaction.AccountId},
 		{Key: "user_id", Value: transaction.UserId},
-		{Key: "type", Value: transaction.Type.String()},
+		{Key: "type", Value: transaction.Type},
 		{Key: "amount", Value: transaction.Amount},
 		{Key: "description", Value: transaction.Description},
 		{Key: "date", Value: date},
@@ -142,16 +141,11 @@ func (repo *transactionRepositoryImpl) GetTransaction(ctx context.Context, reque
 		return nil, err
 	}
 
-	typeTrnsaction, err := enums.TypeTrnsactionParse(transaction.Type)
-	if err != nil {
-		return nil, err
-	}
-
 	return &pb.GetTransactionResp{
 		Id:          transaction.Id,
 		AccountId:   transaction.AccountId,
 		UserId:      transaction.UserId,
-		Type:        *typeTrnsaction,
+		Type:        transaction.Type,
 		Amount:      transaction.Amount,
 		Description: transaction.Description,
 		Date:        transaction.Date.Format("2006-01-02 15:04:05"),
@@ -161,10 +155,22 @@ func (repo *transactionRepositoryImpl) GetTransaction(ctx context.Context, reque
 func (repo *transactionRepositoryImpl) GetTransactionsList(ctx context.Context, request *pb.GetTransactionsListReq) (*pb.GetTransactionsListResp, error) {
 	pipeline := createTransactionFilter(request)
 
-	totalCount, err := repo.coll.CountDocuments(ctx, pipeline)
+	// Hujjatlarni sanash uchun `pipeline` ni `Aggregate` bilan ishlating
+	countPipeline := append(pipeline, bson.D{{Key: "$count", Value: "totalCount"}})
+	countCursor, err := repo.coll.Aggregate(ctx, countPipeline)
 	if err != nil {
 		return nil, err
 	}
+	var countResult []bson.M
+	if err = countCursor.All(ctx, &countResult); err != nil {
+		return nil, err
+	}
+	totalCount := int32(0)
+	if len(countResult) > 0 {
+		totalCount = countResult[0]["totalCount"].(int32)
+	}
+
+	// Pagination uchun `skip` va `limit` qo'shing
 	pipeline = append(pipeline, bson.D{{Key: "$skip", Value: (request.Page - 1) * request.Limit}})
 	pipeline = append(pipeline, bson.D{{Key: "$limit", Value: request.Limit}})
 
@@ -172,22 +178,19 @@ func (repo *transactionRepositoryImpl) GetTransactionsList(ctx context.Context, 
 	if err != nil {
 		return nil, err
 	}
+	defer cursor.Close(ctx)
+
 	var transactions []*pb.Transaction
-	if cursor.Next(ctx) {
+	for cursor.Next(ctx) {
 		var transaction models.GetTransaction
-		err := cursor.Decode(&transaction)
-		if err != nil {
-			return nil, err
-		}
-		typeTrnsaction, err := enums.TypeTrnsactionParse(transaction.Type)
-		if err != nil {
+		if err := cursor.Decode(&transaction); err != nil {
 			return nil, err
 		}
 		transactions = append(transactions, &pb.Transaction{
 			Id:          transaction.Id,
 			AccountId:   transaction.AccountId,
 			UserId:      transaction.UserId,
-			Type:        *typeTrnsaction,
+			Type:        transaction.Type,
 			Amount:      transaction.Amount,
 			Description: transaction.Description,
 			Date:        transaction.Date.Format("2006-01-02 15:04:05"),
@@ -198,7 +201,7 @@ func (repo *transactionRepositoryImpl) GetTransactionsList(ctx context.Context, 
 	}
 
 	return &pb.GetTransactionsListResp{
-		TotalCount:   totalCount,
+		TotalCount:   int64(totalCount),
 		Transactions: transactions,
 		Page:         request.Page,
 		Limit:        request.Limit,
@@ -208,13 +211,8 @@ func (repo *transactionRepositoryImpl) GetTransactionsList(ctx context.Context, 
 func createTransactionFilter(request *pb.GetTransactionsListReq) mongo.Pipeline {
 	var pipeline mongo.Pipeline
 	if request.UserId != "" {
-		pipeline = append(pipeline, bson.D{
-			{Key: "$match", Value: bson.D{
-				{Key: "user_id", Value: request.UserId},
-			}},
-		})
+		pipeline = append(pipeline, bson.D{{Key: "$match", Value: bson.D{{Key: "user_id", Value: request.UserId}}}})
 	}
-
 	if request.AccountName != "" {
 		pipeline = append(pipeline, bson.D{
 			{Key: "$lookup", Value: bson.D{
@@ -224,19 +222,16 @@ func createTransactionFilter(request *pb.GetTransactionsListReq) mongo.Pipeline 
 				{Key: "as", Value: "account"},
 			}},
 		})
-		pipeline = append(pipeline, bson.D{
-			{Key: "$unwind", Value: "$account"},
-		})
+		pipeline = append(pipeline, bson.D{{Key: "$unwind", Value: "$account"}})
 		pipeline = append(pipeline, bson.D{
 			{Key: "$match", Value: bson.D{
 				{Key: "account.name", Value: bson.D{
-					{Key: "$regex", Value: "*." + request.AccountName + ".*"},
+					{Key: "$regex", Value: ".*" + request.AccountName + ".*"},
 					{Key: "$options", Value: "i"},
 				}},
 			}},
 		})
 	}
-
 	if request.CategoryName != "" {
 		pipeline = append(pipeline, bson.D{
 			{Key: "$lookup", Value: bson.D{
@@ -246,19 +241,16 @@ func createTransactionFilter(request *pb.GetTransactionsListReq) mongo.Pipeline 
 				{Key: "as", Value: "category"},
 			}},
 		})
-		pipeline = append(pipeline, bson.D{
-			{Key: "$unwind", Value: "$category"},
-		})
+		pipeline = append(pipeline, bson.D{{Key: "$unwind", Value: "$category"}})
 		pipeline = append(pipeline, bson.D{
 			{Key: "$match", Value: bson.D{
 				{Key: "category.name", Value: bson.D{
-					{Key: "$regex", Value: "*." + request.CategoryName + ".*"},
+					{Key: "$regex", Value: ".*" + request.CategoryName + ".*"},
 					{Key: "$options", Value: "i"},
 				}},
 			}},
 		})
 	}
-
 	if request.Amount != 0 {
 		pipeline = append(pipeline, bson.D{
 			{Key: "$match", Value: bson.D{
@@ -268,12 +260,11 @@ func createTransactionFilter(request *pb.GetTransactionsListReq) mongo.Pipeline 
 			}},
 		})
 	}
-
 	if request.Description != "" {
 		pipeline = append(pipeline, bson.D{
 			{Key: "$match", Value: bson.D{
 				{Key: "description", Value: bson.D{
-					{Key: "$regex", Value: "*." + request.Description + ".*"},
+					{Key: "$regex", Value: ".*" + request.Description + ".*"},
 					{Key: "$options", Value: "i"},
 				}},
 			}},
@@ -281,7 +272,9 @@ func createTransactionFilter(request *pb.GetTransactionsListReq) mongo.Pipeline 
 	}
 
 	pipeline = append(pipeline, bson.D{
-		{Key: "delete_at", Value: nil},
+		{Key: "$match", Value: bson.D{
+			{Key: "delete_at", Value: nil},
+		}},
 	})
 
 	return pipeline

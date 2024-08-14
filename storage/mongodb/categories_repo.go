@@ -3,7 +3,6 @@ package mongodb
 import (
 	pb "budgeting-service/generated/budgeting"
 	"budgeting-service/models"
-	"budgeting-service/pkg/enums"
 	"context"
 	"time"
 
@@ -33,7 +32,7 @@ func (ropo *categoryRepositoryImpl) CreateCategory(ctx context.Context, category
 		{Key: "_id", Value: uuid.NewString()},
 		{Key: "user_id", Value: category.UserId},
 		{Key: "name", Value: category.Name},
-		{Key: "type", Value: category.Type.String()},
+		{Key: "type", Value: category.Type},
 		{Key: "created_at", Value: time.Now()},
 		{Key: "updated_at", Value: time.Now()},
 		{Key: "deleted_at", Value: nil},
@@ -55,7 +54,7 @@ func (repo *categoryRepositoryImpl) UpdateCategory(ctx context.Context, request 
 	updated := bson.D{
 		{Key: "$set", Value: bson.D{
 			{Key: "name", Value: request.Name},
-			{Key: "type", Value: request.Type.String()},
+			{Key: "type", Value: request.Type},
 			{Key: "updated_at", Value: time.Now()},
 		}},
 	}
@@ -130,32 +129,51 @@ func (repo *categoryRepositoryImpl) GetCategory(ctx context.Context, request *pb
 		return nil, err
 	}
 
-	categoryType, err := enums.CategoryTypeParse(category.Type)
-	if err != nil {
-		return nil, err
-	}
-
 	return &pb.GetCategoryResp{
 		Id:     category.ID,
 		UserId: category.UserId,
 		Name:   category.Name,
-		Type:   *categoryType,
+		Type:   category.Type,
 	}, nil
 }
 
 func (repo *categoryRepositoryImpl) GetCategoriesList(ctx context.Context, request *pb.GetCategoriesReq) (*pb.GetCategoriesResp, error) {
-	pipeline := createCategoryFilters(request)
-	totalCount, err := repo.coll.CountDocuments(ctx, pipeline)
+	// Oddiy filtr yaratish
+	filter := bson.D{}
+
+	if request.UserId != "" {
+		filter = append(filter, bson.E{Key: "user_id", Value: request.UserId})
+	}
+	if request.Name != "" {
+		filter = append(filter, bson.E{Key: "name", Value: bson.D{
+			{Key: "$regex", Value: request.Name},
+			{Key: "$options", Value: "i"},
+		}})
+	}
+	if request.Type != "" {
+		filter = append(filter, bson.E{Key: "type", Value: request.Type})
+	}
+
+	filter = append(filter, bson.E{Key: "deleted_at", Value: nil})
+
+	// Hujjatlarni sanash
+	totalCount, err := repo.coll.CountDocuments(ctx, filter)
 	if err != nil {
 		return nil, err
 	}
-	pipeline = append(pipeline, bson.D{{Key: "$skip", Value: (request.Page - 1) * request.Limit}})
-	pipeline = append(pipeline, bson.D{{Key: "$limit", Value: request.Limit}})
+
+	// Agregatsiya pipeline yaratish
+	pipeline := mongo.Pipeline{
+		{{Key: "$match", Value: filter}},
+		{{Key: "$skip", Value: (request.Page - 1) * request.Limit}},
+		{{Key: "$limit", Value: request.Limit}},
+	}
 
 	cursor, err := repo.coll.Aggregate(ctx, pipeline)
 	if err != nil {
 		return nil, err
 	}
+
 	var categories []*pb.Category
 	for cursor.Next(ctx) {
 		var category models.GetCategory
@@ -164,55 +182,17 @@ func (repo *categoryRepositoryImpl) GetCategoriesList(ctx context.Context, reque
 			return nil, err
 		}
 
-		categoryType, err := enums.CategoryTypeParse(category.Type)
-		if err != nil {
-			return nil, err
-		}
-
 		categories = append(categories, &pb.Category{
 			Id:     category.ID,
 			UserId: category.UserId,
 			Name:   category.Name,
-			Type:   *categoryType,
+			Type:   category.Type,
 		})
 	}
+
 	return &pb.GetCategoriesResp{
 		Categories: categories,
 		TotalCount: totalCount,
 		Limit:      request.Limit,
 	}, nil
-}
-
-func createCategoryFilters(request *pb.GetCategoriesReq) mongo.Pipeline {
-	pipeline := mongo.Pipeline{}
-
-	if request.UserId != "" {
-		pipeline = append(pipeline, bson.D{
-			{Key: "$match", Value: bson.D{
-				{Key: "user_id", Value: request.UserId},
-			}},
-		})
-	}
-	if request.Name != "" {
-		pipeline = append(pipeline, bson.D{
-			{Key: "$match", Value: bson.D{
-				{Key: "name", Value: bson.D{
-					{Key: "$regex", Value: "*." + request.Name + ".*"},
-					{Key: "$options", Value: "i"},
-				}},
-			}},
-		})
-	}
-	// if request.Type!= "" {
-	// 	pipeline = append(pipeline, bson.D{
-	//         {Key: "$match", Value: bson.D{
-	//             {Key: "type", Value: request.Type},
-	//         }},
-	//     })
-	// }
-
-	pipeline = append(pipeline, bson.D{
-		{Key: "deleted_at", Value: nil},
-	})
-	return pipeline
 }

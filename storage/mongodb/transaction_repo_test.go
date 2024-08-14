@@ -21,7 +21,7 @@ func TestCreateTransaction(t *testing.T) {
 		UserId:      "test_user_id",
 		AccountId:   "test_account_id",
 		Amount:      100.0,
-		Type:        pb.TypeTrnsaction_EXPENSE,
+		Type:        "expence",
 		Description: "Test Transaction",
 		CategoryId:  "test_category",
 		Date:        "2022-01-01 00:00:00",
@@ -44,7 +44,7 @@ func TestUpdateTransaction(t *testing.T) {
 	transaction := &pb.UpdateTransactionReq{
 		Id:          "1e891746-d2bb-44d0-bab0-4660ee52d12d",
 		Amount:      200.0,
-		Type:        pb.TypeTrnsaction_INCOME,
+		Type:        "income",
 		Description: "Updated Test Transaction",
 		Date:        "2022-01-02 00:00:00",
 	}
@@ -85,7 +85,7 @@ func TestGetTransactions(t *testing.T) {
 
 	repo := NewTransactionRepository(db)
 	resp, err := repo.GetTransactionsList(context.Background(), &pb.GetTransactionsListReq{
-		Type: pb.TypeTrnsaction_INCOME,
+		Type: "income",
 	})
 	if err != nil {
 		t.Fatal(err)

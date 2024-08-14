@@ -21,7 +21,7 @@ func TestCreateBudget(t *testing.T) {
 		UserId:     "test_user_id",
 		CategoryId: "test_category_id",
 		Amount:     1000,
-		Period:     pb.Period_MONTHLY,
+		Period:     "MONTHLY",
 		StartDate:  time.Now().Format("2006-01-02 15:04:05"),
 		EndDate:    time.Now().Add(time.Hour * 24 * 7).Format("2006-01-02 15:04:05"),
 	}
@@ -61,7 +61,7 @@ func TestUpdateBudget(t *testing.T) {
         Id:   "b2828dd7-9460-448e-bd43-c754ad775c01",
         CategoryId: "test_category_id",
         Amount:     1000,
-        Period:     pb.Period_MONTHLY,
+        Period:     "MONTHLY",
         StartDate:  time.Now().Format("2006-01-02 15:04:05"),
         EndDate:    time.Now().Add(time.Hour * 24 * 7).Format("2006-01-02 15:04:05"),
 	}

@@ -21,7 +21,7 @@ func TestCreateGoal(t *testing.T) {
 		Name:         "Test Goal",
 		TargetAmount: 1000,
 		Deadline:     "2022-12-31 00:00:00",
-		Status:       pb.Status_ACHIEVED,
+		Status:       "ACHIEVED",
 	}
 
 	resp, err := repo.CreateGoal(context.Background(), goal)
@@ -45,7 +45,7 @@ func TestUpdateGoal(t *testing.T) {
         Name:         "Updated Test Goal",
         TargetAmount: 2000,
         Deadline:     "2023-01-31",
-        Status:       pb.Status_INPORGRESS,
+        Status:       "INPORGRESS",
     }
 
     resp, err := repo.UpdateGoal(context.Background(), goal)

@@ -64,7 +64,7 @@ func (s *goalsManagementServiceImpl) GetGoal(ctx context.Context, req *pb.GetGoa
 	return resp, nil
 }
 
-func (s *goalsManagementServiceImpl) GetGoalsList(ctx context.Context, req *pb.GetGoalsReq) (*pb.GetGoalsResp, error) {
+func (s *goalsManagementServiceImpl) GetGoals(ctx context.Context, req *pb.GetGoalsReq) (*pb.GetGoalsResp, error) {
 	resp, err := s.storage.GoalsRepository().GetGoalsList(ctx, req)
 	if err != nil {
 		s.logger.Error("Get goals list error", "error", err)

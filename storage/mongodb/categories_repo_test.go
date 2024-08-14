@@ -19,7 +19,7 @@ func TestCreateCategory(t *testing.T) {
 	category := &pb.CreateCategoryReq{
 		UserId: "test_user_id",
 		Name:   "Test Category",
-		Type:   pb.CategoryType_EXPENSE,
+		Type:   "EXPENSE",
 	}
 
 	resp, err := repo.CreateCategory(context.Background(), category)
@@ -39,7 +39,7 @@ func TestUpdateCategory(t *testing.T) {
 	category := &pb.UpdateCategoryReq{
 		Id:   "d9d36573-5ee9-48e3-80a0-257172f64c72",
 		Name: "Updated Test Category",
-		Type: pb.CategoryType_INCOME,
+		Type: "INCOME",
 	}
 
 	resp, err := repo.UpdateCategory(context.Background(), category)
@@ -91,7 +91,7 @@ func TestGetCategoriesList(t *testing.T) {
     repo := NewCategoryRepository(db)
     resp, err := repo.GetCategoriesList(context.Background(), &pb.GetCategoriesReq{
         Name: "Test Category",
-		Type: pb.CategoryType_EXPENSE,
+		Type: "EXPENSE",
     })
     assert.NoError(t, err)
 

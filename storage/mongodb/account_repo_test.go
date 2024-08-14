@@ -32,7 +32,7 @@ func TestCreateAccount(t *testing.T) {
 	account := &pb.CreateAccountReq{
 		UserId:   "test_user_id",
 		Name:     "Test Account",
-		Type:     pb.AccountType_CHECKING,
+		Type:     "CHECKING",
 		Balance:  1000.0,
 		Currency: "USD",
 	}
@@ -54,7 +54,7 @@ func TestUpdateAccount(t *testing.T) {
 	account := &pb.UpdateAccountReq{
 		Id:       "1e891746-d2bb-44d0-bab0-4660ee52d12d",
 		Name:     "Updated Test Account",
-		Type:     pb.AccountType_SAVINGS,
+		Type:     "SAVINGS",
 		Balance:  2000.0,
 		Currency: "USD",
 	}

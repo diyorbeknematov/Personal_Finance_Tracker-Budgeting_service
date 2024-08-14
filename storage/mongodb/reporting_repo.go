@@ -27,7 +27,7 @@ func (repo *reportingRepositoryImpl) GetSependingReport(ctx context.Context, req
 	pipeline = append(pipeline, bson.D{
 		{Key: "$match", Value: bson.D{
 			{Key: "user_id", Value: request.UserId},
-			{Key: "type", Value: pb.TypeTrnsaction_EXPENSE.String()},
+			{Key: "type", Value: "expense"},
 		}},
 	})
 
@@ -117,7 +117,7 @@ func (repo *reportingRepositoryImpl) GetIncomeReport(ctx context.Context, reques
 	pipeline = append(pipeline, bson.D{
 		{Key: "$match", Value: bson.D{
 			{Key: "user_id", Value: request.UserId},
-			{Key: "type", Value: pb.TypeTrnsaction_INCOME.String()},
+			{Key: "type", Value: "monthly"},
 		}},
 	})
 

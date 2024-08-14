@@ -3,13 +3,14 @@ package models
 import "time"
 
 type GetAccount struct {
-	ID       string  `json:"id"`
-	UserId   string  `json:"user_id"`
-	Name     string  `json:"name"`
-	Type     string  `json:"type"`
-	Balance  float64 `json:"balance"`
-	Currency string  `json:"currency"`
+	ID       string  `bson:"_id"`
+	UserId   string  `bson:"user_id"`
+	Name     string  `bson:"name"`
+	Type     string  `bson:"type"`
+	Balance  float64 `bson:"balance"`
+	Currency string  `bson:"currency"`
 }
+
 
 type GetTransaction struct {
 	Id          string    `bson:"_id"`

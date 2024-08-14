@@ -3,11 +3,9 @@ package mongodb
 import (
 	pb "budgeting-service/generated/budgeting"
 	"budgeting-service/models"
-	"budgeting-service/pkg/enums"
 	"context"
 	"errors"
 	"fmt"
-	"log"
 	"time"
 
 	"github.com/google/uuid"
@@ -43,7 +41,7 @@ func (repo *goalsRepositoryImpl) CreateGoal(ctx context.Context, goal *pb.Create
 		{Key: "target_amount", Value: goal.TargetAmount},
 		{Key: "current_amount", Value: 0},
 		{Key: "deadline", Value: deadline},
-		{Key: "status", Value: goal.Status.String()},
+		{Key: "status", Value: goal.Status},
 		{Key: "created_at", Value: time.Now()},
 		{Key: "updated_at", Value: time.Now()},
 		{Key: "deleted_at", Value: nil},
@@ -73,7 +71,7 @@ func (repo *goalsRepositoryImpl) UpdateGoal(ctx context.Context, goal *pb.Update
 			{Key: "name", Value: goal.Name},
 			{Key: "target_amount", Value: goal.TargetAmount},
 			{Key: "deadline", Value: goal.Deadline},
-			{Key: "status", Value: goal.Status.String()},
+			{Key: "status", Value: goal.Status},
 			{Key: "updated_at", Value: time.Now()},
 		}},
 	}
@@ -143,12 +141,6 @@ func (repo *goalsRepositoryImpl) GetGoal(ctx context.Context, request *pb.GetGoa
 		return nil, err
 	}
 
-	goalStatus, err := enums.GoalStatusParse(goal.Status)
-	if err != nil {
-		log.Println("Error parsing goal status: " + err.Error())
-		return nil, err
-	}
-
 	fmt.Println(goal)
 	return &pb.GetGoalResp{
 		Id:            goal.ID,
@@ -157,19 +149,30 @@ func (repo *goalsRepositoryImpl) GetGoal(ctx context.Context, request *pb.GetGoa
 		TargetAmount:  goal.TargetAmount,
 		CurrentAmount: goal.CurrentAmount,
 		Deadline:      goal.Deadline.Format("2006-01-02 15:04:05"),
-		Status:        *goalStatus,
+		Status:        goal.Status,
 	}, nil
 }
 
 func (repo *goalsRepositoryImpl) GetGoalsList(ctx context.Context, request *pb.GetGoalsReq) (*pb.GetGoalsResp, error) {
 	pipeline := createGoalFilters(request)
 
-	totalCount, err := repo.coll.CountDocuments(ctx, pipeline)
+	countPipeline := append(pipeline, bson.D{{Key: "$count", Value: "totalCount"}})
+	countCursor, err := repo.coll.Aggregate(ctx, countPipeline)
 	if err != nil {
 		return nil, err
 	}
 
-	pipeline = append(pipeline, bson.D{{Key: "$skip", Value: (request.Page-1)*request.Limit}})
+	var countResult []bson.M
+	if err = countCursor.All(ctx, &countResult); err != nil {
+		return nil, err
+	}
+
+	totalCount := int32(0)
+	if len(countResult) > 0 {
+		totalCount = countResult[0]["totalCount"].(int32)
+	}
+
+	pipeline = append(pipeline, bson.D{{Key: "$skip", Value: (request.Page - 1) * request.Limit}})
 	pipeline = append(pipeline, bson.D{{Key: "$limit", Value: request.Limit}})
 
 	cursor, err := repo.coll.Aggregate(ctx, pipeline)
@@ -186,11 +189,6 @@ func (repo *goalsRepositoryImpl) GetGoalsList(ctx context.Context, request *pb.G
 			return nil, err
 		}
 
-		goalStatus, err := enums.GoalStatusParse(goal.Status)
-		if err != nil {
-			return nil, err
-		}
-
 		goals = append(goals, &pb.Goal{
 			Id:            goal.ID,
 			UserId:        goal.UserId,
@@ -198,37 +196,39 @@ func (repo *goalsRepositoryImpl) GetGoalsList(ctx context.Context, request *pb.G
 			TargetAmount:  goal.TargetAmount,
 			CurrentAmount: goal.CurrentAmount,
 			Deadline:      goal.Deadline.Format("2006-01-02 15:04:05"),
-			Status:        *goalStatus,
+			Status:        goal.Status,
 		})
 	}
 
 	return &pb.GetGoalsResp{
-		Goals: goals,
-		TotalCount: totalCount,
-		Page: request.Page,
-		Limit: request.Limit,
+		Goals:      goals,
+		TotalCount: int64(totalCount),
+		Page:       request.Page,
+		Limit:      request.Limit,
 	}, nil
 }
 
 func createGoalFilters(request *pb.GetGoalsReq) mongo.Pipeline {
-	pipline := mongo.Pipeline{}
+	pipeline := mongo.Pipeline{}
 	if request.UserId != "" {
-		pipline = append(pipline, bson.D{
+		pipeline = append(pipeline, bson.D{
 			{Key: "$match", Value: bson.D{
 				{Key: "user_id", Value: request.UserId},
 			}},
 		})
 	}
 	if request.Name != "" {
-		pipline = append(pipline, bson.D{
+		pipeline = append(pipeline, bson.D{
 			{Key: "$match", Value: bson.D{
-				{Key: "$regex", Value: ".*" + request.Name + ".*"},
-				{Key: "$options", Value: "i"},
+				{Key: "name", Value: bson.D{
+					{Key: "$regex", Value: ".*" + request.Name + ".*"},
+					{Key: "$options", Value: "i"},
+				}},
 			}},
 		})
 	}
 	if request.TargetAmount != 0 {
-		pipline = append(pipline, bson.D{
+		pipeline = append(pipeline, bson.D{
 			{Key: "$match", Value: bson.D{
 				{Key: "target_amount", Value: request.TargetAmount},
 			}},
@@ -237,7 +237,7 @@ func createGoalFilters(request *pb.GetGoalsReq) mongo.Pipeline {
 	if request.Deadline != "" {
 		deadline, err := time.Parse("2006-01-02 15:04:05", request.Deadline)
 		if err == nil {
-			pipline = append(pipline, bson.D{
+			pipeline = append(pipeline, bson.D{
 				{Key: "$match", Value: bson.D{
 					{Key: "deadline", Value: bson.D{
 						{Key: "$gte", Value: deadline},
@@ -248,8 +248,13 @@ func createGoalFilters(request *pb.GetGoalsReq) mongo.Pipeline {
 		}
 	}
 
-	pipline = append(pipline, bson.D{
-		{Key: "delete_at", Value: nil},
-	})
-	return pipline
+	if request.Status != "" {
+		pipeline = append(pipeline, bson.D{
+			{Key: "$match", Value: bson.D{
+				{Key: "status", Value: request.Status},
+			}},
+		})
+	}
+
+	return pipeline
 }

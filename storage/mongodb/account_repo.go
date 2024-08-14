@@ -2,6 +2,7 @@ package mongodb
 
 import (
 	pb "budgeting-service/generated/budgeting"
+	"budgeting-service/models"
 	"context"
 	"time"
 
@@ -117,22 +118,38 @@ func (repo *accountRepositoryImpl) GetAccount(ctx context.Context, request *pb.G
 		{Key: "deleted_at", Value: nil},
 	}
 
-	var account pb.GetAccountResp
+	var account models.GetAccount
 	err := repo.coll.FindOne(ctx, filter).Decode(&account)
 
 	if err != nil {
 		return nil, err
 	}
 
-	return &account, nil
+	return &pb.GetAccountResp{
+		Id:       account.ID,
+		UserId:   account.UserId,
+		Name:     account.Name,
+		Type:     account.Type,
+		Balance:  account.Balance,
+		Currency: account.Currency,
+	}, nil
 }
 
 func (repo *accountRepositoryImpl) GetAccountsList(ctx context.Context, request *pb.GetAccountsListReq) (*pb.GetAccountsListResp, error) {
 	pipeline := createFilters(request)
 
-	totalCount, err := repo.coll.CountDocuments(ctx, pipeline)
+	countPipeline := append(pipeline, bson.D{{Key: "$count", Value: "totalCount"}})
+	countCursor, err := repo.coll.Aggregate(ctx, countPipeline)
 	if err != nil {
 		return nil, err
+	}
+	var countResult []bson.M
+	if err = countCursor.All(ctx, &countResult); err != nil {
+		return nil, err
+	}
+	totalCount := int32(0)
+	if len(countResult) > 0 {
+		totalCount = countResult[0]["totalCount"].(int32)
 	}
 
 	pipeline = append(pipeline, bson.D{{Key: "$skip", Value: (request.Offset - 1) * request.Limit}})
@@ -159,7 +176,7 @@ func (repo *accountRepositoryImpl) GetAccountsList(ctx context.Context, request 
 	return &pb.GetAccountsListResp{
 		Limit:      request.Limit,
 		Offset:     request.Offset,
-		TotalCount: totalCount,
+		TotalCount: int64(totalCount),
 		Accounts:   accounts,
 	}, nil
 }
@@ -226,7 +243,9 @@ func createFilters(request *pb.GetAccountsListReq) mongo.Pipeline {
 	}
 
 	pipeline = append(pipeline, bson.D{
-		{Key: "deleted_at", Value: nil},
+		{Key: "$match", Value: bson.D{
+			{Key: "deleted_at", Value: nil},
+		}},
 	})
 
 	return pipeline

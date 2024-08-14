@@ -27,3 +27,119 @@
 {"time":"2024-08-13T15:48:44.469211552+05:00","level":"ERROR","msg":"Error consuming messages","error":"fetching message: failed to dial: failed to open connection to localhost:9092: dial tcp 127.0.0.1:9092: connect: connection refused"}
 {"time":"2024-08-13T15:52:12.367635302+05:00","level":"INFO","msg":"Starting gRPC server..."}
 {"time":"2024-08-13T15:52:12.368283645+05:00","level":"INFO","msg":"Listening on port","port":50051}
+{"time":"2024-08-13T16:13:25.500099912+05:00","level":"INFO","msg":"Starting gRPC server..."}
+{"time":"2024-08-13T16:13:25.500527298+05:00","level":"INFO","msg":"Listening on port","port":50051}
+{"time":"2024-08-13T16:55:19.599789993+05:00","level":"INFO","msg":"Starting gRPC server..."}
+{"time":"2024-08-13T16:55:19.600493599+05:00","level":"INFO","msg":"Listening on port","port":50051}
+{"time":"2024-08-13T18:25:32.795462097+05:00","level":"INFO","msg":"Starting gRPC server..."}
+{"time":"2024-08-13T18:25:32.795810854+05:00","level":"INFO","msg":"Listening on port","port":50051}
+{"time":"2024-08-13T18:25:35.892077099+05:00","level":"ERROR","msg":"Get account error","error":"mongo: no documents in result"}
+{"time":"2024-08-13T18:30:49.772570666+05:00","level":"INFO","msg":"Starting gRPC server..."}
+{"time":"2024-08-13T18:30:49.774369936+05:00","level":"INFO","msg":"Listening on port","port":50051}
+{"time":"2024-08-13T18:31:00.53637379+05:00","level":"INFO","msg":"Starting gRPC server..."}
+{"time":"2024-08-13T18:31:00.536470582+05:00","level":"INFO","msg":"Listening on port","port":50051}
+{"time":"2024-08-13T18:31:04.831644101+05:00","level":"ERROR","msg":"Get account error","error":"error decoding key type: cannot decode 32-bit integer into a string type"}
+{"time":"2024-08-13T18:31:42.359871776+05:00","level":"INFO","msg":"Starting gRPC server..."}
+{"time":"2024-08-13T18:31:42.360064509+05:00","level":"INFO","msg":"Listening on port","port":50051}
+{"time":"2024-08-13T18:31:44.612670088+05:00","level":"ERROR","msg":"Get account error","error":"error decoding key type: cannot decode 32-bit integer into a string type"}
+{"time":"2024-08-13T18:32:29.95261594+05:00","level":"INFO","msg":"Starting gRPC server..."}
+{"time":"2024-08-13T18:32:29.952787223+05:00","level":"INFO","msg":"Listening on port","port":50051}
+{"time":"2024-08-13T18:32:32.330953759+05:00","level":"ERROR","msg":"Get account error","error":"error decoding key type: cannot decode 32-bit integer into a string type"}
+{"time":"2024-08-13T18:34:13.399097097+05:00","level":"INFO","msg":"Starting gRPC server..."}
+{"time":"2024-08-13T18:34:13.399282176+05:00","level":"INFO","msg":"Listening on port","port":50051}
+{"time":"2024-08-13T18:36:38.803136778+05:00","level":"INFO","msg":"Starting gRPC server..."}
+{"time":"2024-08-13T18:36:38.80407119+05:00","level":"INFO","msg":"Listening on port","port":50051}
+{"time":"2024-08-13T18:37:17.378698215+05:00","level":"INFO","msg":"Starting gRPC server..."}
+{"time":"2024-08-13T18:37:17.378832318+05:00","level":"INFO","msg":"Listening on port","port":50051}
+{"time":"2024-08-13T18:38:52.886376138+05:00","level":"INFO","msg":"Starting gRPC server..."}
+{"time":"2024-08-13T18:38:52.887259764+05:00","level":"INFO","msg":"Listening on port","port":50051}
+{"time":"2024-08-13T18:40:06.560915508+05:00","level":"ERROR","msg":"Get account error","error":"mongo: no documents in result"}
+{"time":"2024-08-13T18:40:25.206721828+05:00","level":"ERROR","msg":"Get account error","error":"error decoding key type: cannot decode 32-bit integer into a string type"}
+{"time":"2024-08-13T18:40:57.55251701+05:00","level":"INFO","msg":"Starting gRPC server..."}
+{"time":"2024-08-13T18:40:57.552748807+05:00","level":"INFO","msg":"Listening on port","port":50051}
+{"time":"2024-08-13T18:46:45.548877383+05:00","level":"INFO","msg":"Starting gRPC server..."}
+{"time":"2024-08-13T18:46:45.549062333+05:00","level":"INFO","msg":"Listening on port","port":50051}
+{"time":"2024-08-13T19:01:17.181108184+05:00","level":"INFO","msg":"Starting gRPC server..."}
+{"time":"2024-08-13T19:01:17.181874934+05:00","level":"INFO","msg":"Listening on port","port":50051}
+{"time":"2024-08-13T19:17:18.036473937+05:00","level":"INFO","msg":"Starting gRPC server..."}
+{"time":"2024-08-13T19:17:18.037255769+05:00","level":"INFO","msg":"Listening on port","port":50051}
+{"time":"2024-08-13T19:25:18.326480621+05:00","level":"ERROR","msg":"Create transaction error","error":"parsing time \"string\" as \"2006-01-02 15:04:05\": cannot parse \"string\" as \"2006\""}
+{"time":"2024-08-13T19:27:57.429040749+05:00","level":"INFO","msg":"Starting gRPC server..."}
+{"time":"2024-08-13T19:27:57.429237209+05:00","level":"INFO","msg":"Listening on port","port":50051}
+{"time":"2024-08-13T19:28:06.445636275+05:00","level":"ERROR","msg":"Create transaction error","error":"parsing time \"string\" as \"2006-01-02 15:04:05\": cannot parse \"string\" as \"2006\""}
+{"time":"2024-08-13T19:29:05.207055167+05:00","level":"INFO","msg":"Starting gRPC server..."}
+{"time":"2024-08-13T19:29:05.208289493+05:00","level":"INFO","msg":"Listening on port","port":50051}
+{"time":"2024-08-13T19:29:14.299112703+05:00","level":"ERROR","msg":"Create transaction error","error":"parsing time \"string\" as \"2006-01-02 15:04:05\": cannot parse \"string\" as \"2006\""}
+{"time":"2024-08-13T19:31:48.792263356+05:00","level":"INFO","msg":"Starting gRPC server..."}
+{"time":"2024-08-13T19:31:48.793702962+05:00","level":"INFO","msg":"Listening on port","port":50051}
+{"time":"2024-08-13T19:31:57.871107262+05:00","level":"ERROR","msg":"Create transaction error","error":"parsing time \"string\" as \"2006-01-02 15:04:05\": cannot parse \"string\" as \"2006\""}
+{"time":"2024-08-13T19:32:44.564893197+05:00","level":"INFO","msg":"Starting gRPC server..."}
+{"time":"2024-08-13T19:32:44.566398598+05:00","level":"INFO","msg":"Listening on port","port":50051}
+{"time":"2024-08-13T19:32:53.596889604+05:00","level":"ERROR","msg":"Create transaction error","error":"parsing time \"string\" as \"2006-01-02 15:04:05\": cannot parse \"string\" as \"2006\""}
+{"time":"2024-08-13T19:33:11.11078041+05:00","level":"INFO","msg":"Starting gRPC server..."}
+{"time":"2024-08-13T19:33:11.11114588+05:00","level":"INFO","msg":"Listening on port","port":50051}
+{"time":"2024-08-13T19:33:20.177131812+05:00","level":"ERROR","msg":"Create transaction error","error":"parsing time \"string\" as \"2006-01-02 15:04:05\": cannot parse \"string\" as \"2006\""}
+{"time":"2024-08-13T19:54:06.083194704+05:00","level":"INFO","msg":"Starting gRPC server..."}
+{"time":"2024-08-13T19:54:06.084195815+05:00","level":"INFO","msg":"Listening on port","port":50051}
+{"time":"2024-08-13T19:54:15.125403662+05:00","level":"ERROR","msg":"Create transaction error","error":"parsing time \"string\" as \"2006-01-02 15:04:05\": cannot parse \"string\" as \"2006\""}
+{"time":"2024-08-13T19:54:36.23485276+05:00","level":"ERROR","msg":"Get transactions list error","error":"cannot marshal type mongo.Pipeline to a BSON Document: WriteArray can only write a Array while positioned on a Element or Value but is positioned on a TopLevel"}
+{"time":"2024-08-13T20:04:34.865798455+05:00","level":"INFO","msg":"Starting gRPC server..."}
+{"time":"2024-08-13T20:04:34.868148972+05:00","level":"INFO","msg":"Listening on port","port":50051}
+{"time":"2024-08-13T20:04:41.406565699+05:00","level":"ERROR","msg":"Get transactions list error","error":"(Location40324) Unrecognized pipeline stage name: 'delete_at'"}
+{"time":"2024-08-13T20:04:43.954877708+05:00","level":"ERROR","msg":"Create transaction error","error":"parsing time \"string\" as \"2006-01-02 15:04:05\": cannot parse \"string\" as \"2006\""}
+{"time":"2024-08-13T20:05:54.891005642+05:00","level":"INFO","msg":"Starting gRPC server..."}
+{"time":"2024-08-13T20:05:54.892170683+05:00","level":"INFO","msg":"Listening on port","port":50051}
+{"time":"2024-08-13T20:06:03.961787201+05:00","level":"ERROR","msg":"Create transaction error","error":"parsing time \"string\" as \"2006-01-02 15:04:05\": cannot parse \"string\" as \"2006\""}
+{"time":"2024-08-13T20:06:42.228601627+05:00","level":"ERROR","msg":"Get categories list error","error":"cannot marshal type mongo.Pipeline to a BSON Document: WriteArray can only write a Array while positioned on a Element or Value but is positioned on a TopLevel"}
+{"time":"2024-08-13T20:08:52.933209586+05:00","level":"INFO","msg":"Starting gRPC server..."}
+{"time":"2024-08-13T20:08:52.933653632+05:00","level":"INFO","msg":"Listening on port","port":50051}
+{"time":"2024-08-13T20:09:02.015107096+05:00","level":"ERROR","msg":"Create transaction error","error":"parsing time \"string\" as \"2006-01-02 15:04:05\": cannot parse \"string\" as \"2006\""}
+{"time":"2024-08-13T20:09:09.668581925+05:00","level":"ERROR","msg":"Get categories list error","error":"(Location5107200) invalid argument to $skip stage: Expected a non-negative number in: $skip: -10"}
+{"time":"2024-08-13T20:09:47.790787203+05:00","level":"INFO","msg":"Starting gRPC server..."}
+{"time":"2024-08-13T20:09:47.792698512+05:00","level":"INFO","msg":"Listening on port","port":50051}
+{"time":"2024-08-13T20:09:52.181929817+05:00","level":"ERROR","msg":"Get categories list error","error":"(Location5107200) invalid argument to $skip stage: Expected a non-negative number in: $skip: -10"}
+{"time":"2024-08-13T20:09:56.891832644+05:00","level":"ERROR","msg":"Create transaction error","error":"parsing time \"string\" as \"2006-01-02 15:04:05\": cannot parse \"string\" as \"2006\""}
+{"time":"2024-08-13T20:11:12.637872942+05:00","level":"ERROR","msg":"Get categories list error","error":"(Location5107200) invalid argument to $skip stage: Expected a non-negative number in: $skip: -10"}
+{"time":"2024-08-13T20:12:01.210106994+05:00","level":"ERROR","msg":"Get categories list error","error":"(Location5107200) invalid argument to $skip stage: Expected a non-negative number in: $skip: -10"}
+{"time":"2024-08-13T20:12:17.630980586+05:00","level":"INFO","msg":"Starting gRPC server..."}
+{"time":"2024-08-13T20:12:17.635576172+05:00","level":"INFO","msg":"Listening on port","port":50051}
+{"time":"2024-08-13T20:12:26.728161792+05:00","level":"ERROR","msg":"Create transaction error","error":"parsing time \"string\" as \"2006-01-02 15:04:05\": cannot parse \"string\" as \"2006\""}
+{"time":"2024-08-13T20:12:29.969203363+05:00","level":"ERROR","msg":"Get categories list error","error":"(Location5107200) invalid argument to $skip stage: Expected a non-negative number in: $skip: -10"}
+{"time":"2024-08-13T20:13:26.334244454+05:00","level":"INFO","msg":"Starting gRPC server..."}
+{"time":"2024-08-13T20:13:26.335800435+05:00","level":"INFO","msg":"Listening on port","port":50051}
+{"time":"2024-08-13T20:13:28.812331725+05:00","level":"ERROR","msg":"Get budgets list error","error":"cannot marshal type mongo.Pipeline to a BSON Document: WriteNull can only write while positioned on a Element or Value but is positioned on a TopLevel"}
+{"time":"2024-08-13T20:13:35.421847161+05:00","level":"ERROR","msg":"Create transaction error","error":"parsing time \"string\" as \"2006-01-02 15:04:05\": cannot parse \"string\" as \"2006\""}
+{"time":"2024-08-13T20:20:20.301668055+05:00","level":"INFO","msg":"Starting gRPC server..."}
+{"time":"2024-08-13T20:20:20.302909927+05:00","level":"INFO","msg":"Listening on port","port":50051}
+{"time":"2024-08-13T20:21:06.983733365+05:00","level":"INFO","msg":"Starting gRPC server..."}
+{"time":"2024-08-13T20:21:06.985005133+05:00","level":"INFO","msg":"Listening on port","port":50051}
+{"time":"2024-08-13T20:21:10.257709424+05:00","level":"ERROR","msg":"Get budgets list error","error":"error decoding key start_date: parsing time \"2024-08-11 16:48:41\" as \"2006-01-02T15:04:05.999Z07:00\": cannot parse \" 16:48:41\" as \"T\""}
+{"time":"2024-08-13T20:21:16.096554985+05:00","level":"ERROR","msg":"Create transaction error","error":"parsing time \"string\" as \"2006-01-02 15:04:05\": cannot parse \"string\" as \"2006\""}
+{"time":"2024-08-13T20:30:45.693683305+05:00","level":"ERROR","msg":"Get accounts list error","error":"cannot marshal type mongo.Pipeline to a BSON Document: WriteArray can only write a Array while positioned on a Element or Value but is positioned on a TopLevel"}
+{"time":"2024-08-13T20:34:21.499975745+05:00","level":"INFO","msg":"Starting gRPC server..."}
+{"time":"2024-08-13T20:34:21.501866221+05:00","level":"INFO","msg":"Listening on port","port":50051}
+{"time":"2024-08-13T20:34:27.252477477+05:00","level":"ERROR","msg":"Get accounts list error","error":"(Location40324) Unrecognized pipeline stage name: 'deleted_at'"}
+{"time":"2024-08-13T20:34:30.558962404+05:00","level":"ERROR","msg":"Create transaction error","error":"parsing time \"string\" as \"2006-01-02 15:04:05\": cannot parse \"string\" as \"2006\""}
+{"time":"2024-08-13T20:35:07.483147992+05:00","level":"INFO","msg":"Starting gRPC server..."}
+{"time":"2024-08-13T20:35:07.483886298+05:00","level":"INFO","msg":"Listening on port","port":50051}
+{"time":"2024-08-13T20:35:16.599551976+05:00","level":"ERROR","msg":"Create transaction error","error":"parsing time \"string\" as \"2006-01-02 15:04:05\": cannot parse \"string\" as \"2006\""}
+{"time":"2024-08-13T20:36:04.728411898+05:00","level":"INFO","msg":"Starting gRPC server..."}
+{"time":"2024-08-13T20:36:04.730360462+05:00","level":"INFO","msg":"Listening on port","port":50051}
+{"time":"2024-08-13T20:36:13.80232525+05:00","level":"ERROR","msg":"Create transaction error","error":"parsing time \"string\" as \"2006-01-02 15:04:05\": cannot parse \"string\" as \"2006\""}
+{"time":"2024-08-13T20:47:37.302525364+05:00","level":"INFO","msg":"Starting gRPC server..."}
+{"time":"2024-08-13T20:47:37.303474605+05:00","level":"INFO","msg":"Listening on port","port":50051}
+{"time":"2024-08-13T20:47:40.232585869+05:00","level":"ERROR","msg":"Get goals list error","error":"cannot marshal type mongo.Pipeline to a BSON Document: WriteArray can only write a Array while positioned on a Element or Value but is positioned on a TopLevel"}
+{"time":"2024-08-13T20:47:46.364402817+05:00","level":"ERROR","msg":"Create transaction error","error":"parsing time \"string\" as \"2006-01-02 15:04:05\": cannot parse \"string\" as \"2006\""}
+{"time":"2024-08-13T20:54:23.842614044+05:00","level":"INFO","msg":"Starting gRPC server..."}
+{"time":"2024-08-13T20:54:23.845254092+05:00","level":"INFO","msg":"Listening on port","port":50051}
+{"time":"2024-08-13T20:54:32.908600795+05:00","level":"ERROR","msg":"Create transaction error","error":"parsing time \"string\" as \"2006-01-02 15:04:05\": cannot parse \"string\" as \"2006\""}
+{"time":"2024-08-13T20:54:35.7112057+05:00","level":"ERROR","msg":"Get goals list error","error":"cannot decode document into []primitive.M"}
+{"time":"2024-08-13T20:56:01.956007076+05:00","level":"INFO","msg":"Starting gRPC server..."}
+{"time":"2024-08-13T20:56:01.959368895+05:00","level":"INFO","msg":"Listening on port","port":50051}
+{"time":"2024-08-13T20:56:11.041851531+05:00","level":"ERROR","msg":"Create transaction error","error":"parsing time \"string\" as \"2006-01-02 15:04:05\": cannot parse \"string\" as \"2006\""}
+{"time":"2024-08-13T20:57:08.115951903+05:00","level":"INFO","msg":"Starting gRPC server..."}
+{"time":"2024-08-13T20:57:08.119835982+05:00","level":"INFO","msg":"Listening on port","port":50051}
+{"time":"2024-08-13T20:57:17.208213866+05:00","level":"ERROR","msg":"Create transaction error","error":"parsing time \"string\" as \"2006-01-02 15:04:05\": cannot parse \"string\" as \"2006\""}
+{"time":"2024-08-13T21:32:54.275411637+05:00","level":"INFO","msg":"Starting gRPC server..."}
+{"time":"2024-08-13T21:32:54.276162236+05:00","level":"INFO","msg":"Listening on port","port":50051}
+{"time":"2024-08-13T21:33:03.307902225+05:00","level":"ERROR","msg":"Create transaction error","error":"parsing time \"string\" as \"2006-01-02 15:04:05\": cannot parse \"string\" as \"2006\""}

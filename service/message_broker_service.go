@@ -6,6 +6,7 @@ import (
 	"budgeting-service/storage"
 	"context"
 	"encoding/json"
+	"log"
 	"log/slog"
 )
 
@@ -29,6 +30,7 @@ func NewMsgBrokerService(storage storage.IStorage, logger *slog.Logger) MsgBroke
 }
 
 func (m *msBorokerServiceImpl) CreateTransaction(msg []byte) {
+	log.Println("Requesting to create transaction")
 	var transaction pb.CreateTransactionReq
 	err := json.Unmarshal(msg, &transaction)
 	if err != nil {
@@ -51,6 +53,7 @@ func (m *msBorokerServiceImpl) CreateTransaction(msg []byte) {
 }
 
 func (m *msBorokerServiceImpl) UpdateBudget(msg []byte) {
+	log.Println("Requesting to update budget")
 	var budget pb.UpdateBudgetReq
 	err := json.Unmarshal(msg, &budget)
 	if err != nil {

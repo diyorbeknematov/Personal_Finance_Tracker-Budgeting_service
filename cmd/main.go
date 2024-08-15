@@ -48,6 +48,7 @@ func main() {
 
 	go kafka.CreateTransaction(ctx, "transactions")
 	go kafka.UpdateBudget(ctx, "budgets")
+	go kafka.SendNotification(ctx, "notifications")
 
 	service := service.NewServiceManager(listener, grpcServer)
 	service.RegisterServiceManagerServer(storage, logger)

@@ -6,6 +6,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/google/uuid"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 )
@@ -28,6 +29,7 @@ func NewNotificationRepository(db *mongo.Database) NotificationRepository {
 
 func (repo *notificationRepositoryImpl) SendNotification(ctx context.Context, notification *pb.SendNotificationReq) (*pb.SendNotificationResp, error) {
 	_, err := repo.coll.InsertOne(ctx, bson.D{
+		{Key: "_id", Value: uuid.NewString()},
 		{Key: "user_id", Value: notification.UserId},
 		{Key: "message", Value: notification.Message},
 		{Key: "type", Value: notification.Type},

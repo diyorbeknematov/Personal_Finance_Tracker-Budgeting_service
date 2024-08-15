@@ -104,7 +104,6 @@ func TestGetTransaction(t *testing.T) {
     repo := NewTransactionRepository(db)
     resp, err := repo.GetTransaction(context.Background(), &pb.GetTransactionReq{
         Id:     "70ea539d-3099-40fb-bbd9-155f05d9d5e8",
-        UserId: "test_user_id",
     })
     if err!= nil {
         t.Fatal(err)

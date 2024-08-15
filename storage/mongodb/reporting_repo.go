@@ -186,10 +186,16 @@ func (repo *reportingRepositoryImpl) GetIncomeReport(ctx context.Context, reques
 	}
 	defer cursor.Close(ctx) // Ensure cursor is closed after usage
 
-	var result pb.GetIncomeReportResp
+	var result models.IncomeReport
+	var answer pb.GetIncomeReportResp
 	if cursor.Next(ctx) {
 		if err := cursor.Decode(&result); err != nil {
 			return nil, err
+		}
+		answer = pb.GetIncomeReportResp{
+			TotalAmount: result.TotalAmount,
+			Yearly:     result.Yearly,
+            Monthly: result.Monthly,
 		}
 	} else {
 		if err := cursor.Err(); err != nil {
@@ -202,7 +208,7 @@ func (repo *reportingRepositoryImpl) GetIncomeReport(ctx context.Context, reques
 	result.Yearly = request.GetYearly()
 	result.Monthly = request.GetMonthly()
 
-	return &result, nil
+	return &answer, nil
 }
 
 func (repo *reportingRepositoryImpl) GetBudgetPerformance(ctx context.Context, request *pb.GetBudgetPerformanceReq) (*pb.GetBudgetPerformanceResp, error) {
@@ -289,8 +295,8 @@ func (repo *reportingRepositoryImpl) GetGoalsProgress(ctx context.Context, reque
 		bson.D{{
 			Key: "$lookup", Value: bson.D{
 				{Key: "from", Value: "accounts"},
-				{Key: "localField", Value: "account_id"},
-				{Key: "foreignField", Value: "_id"},
+				{Key: "localField", Value: "user_id"},
+				{Key: "foreignField", Value: "user_id"},
 				{Key: "as", Value: "account_details"},
 			},
 		}},
@@ -303,7 +309,7 @@ func (repo *reportingRepositoryImpl) GetGoalsProgress(ctx context.Context, reque
 		bson.D{{
 			Key: "$lookup", Value: bson.D{
 				{Key: "from", Value: "transactions"},
-				{Key: "localField", Value: "account_id"},
+				{Key: "localField", Value: "account_details._id"},
 				{Key: "foreignField", Value: "account_id"},
 				{Key: "as", Value: "related_transactions"},
 			},

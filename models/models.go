@@ -74,16 +74,22 @@ type Notification struct {
 }
 
 type BudgetPerformance struct {
-	CategoryId string  `json:"category_id,omitempty"`
-	Target     float64 `json:"target,omitempty"`
-	Actual     float64 `json:"actual,omitempty"`
-	Progress   float64 `json:"progress,omitempty"`
+	CategoryId string  `bson:"category_id,omitempty"`
+	Target     float64 `bson:"target,omitempty"`
+	Actual     float64 `bson:"actual,omitempty"`
+	Progress   float64 `bson:"progress,omitempty"`
 }
 
 type GoalProgress struct {
-	Id            string  `json:"id,omitempty"`
-	Name          string  `json:"name,omitempty"`
-	TargetAmount  float64 `json:"target_amount,omitempty"`
-	CurrentAmount float64 `json:"current_amount,omitempty"`
-	Progress      float64 `json:"progress,omitempty"`
+	Id            string  `bson:"id"`
+	Name          string  `bson:"name"`
+	TargetAmount  float64 `bson:"target_amount"`
+	CurrentAmount float64 `bson:"current_amount"`
+	Progress      float64 `bson:"progress"`
+}
+
+type IncomeReport struct {
+	TotalAmount float64 `bson:"total_amount"`
+	Yearly      bool    `bson:"yearly"`
+	Monthly     bool    `bson:"monthly"`
 }

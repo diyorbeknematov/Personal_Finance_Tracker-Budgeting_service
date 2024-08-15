@@ -115,7 +115,6 @@ func (repo *accountRepositoryImpl) DeleteAccount(ctx context.Context, request *p
 func (repo *accountRepositoryImpl) GetAccount(ctx context.Context, request *pb.GetAccountReq) (*pb.GetAccountResp, error) {
 	filter := bson.D{
 		{Key: "_id", Value: request.Id},
-		{Key: "user_id", Value: request.UserId},
 		{Key: "deleted_at", Value: nil},
 	}
 

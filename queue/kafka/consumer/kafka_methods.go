@@ -10,6 +10,7 @@ import (
 type KafkaMethods interface {
 	CreateTransaction(ctx context.Context, topic string)
 	UpdateBudget(ctx context.Context, topic string)
+	SendNotification(ctx context.Context, topic string)
 }
 
 type kafkaMethodsImpl struct {

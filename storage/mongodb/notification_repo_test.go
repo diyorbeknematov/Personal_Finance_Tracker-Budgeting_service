@@ -35,12 +35,12 @@ func TestGetNotification(t *testing.T) {
 	defer db.Client().Disconnect(context.Background())
 	repo := NewNotificationRepository(db)
 	resp, err := repo.GetNotification(context.Background(), &pb.GetNotificationReq{
-		Id: "test_notification_id",
+		Id: "462dd3da-cb47-44d0-b693-462ebb971aec",
 	})
 	if err != nil {
 		t.Fatal(err)
 	}
-	assert.Equal(t, resp.Status, "success")
+	assert.Equal(t, resp.Status, "test_status")
 }
 
 func TestDeleteNotification(t *testing.T) {
@@ -51,7 +51,7 @@ func TestDeleteNotification(t *testing.T) {
 	defer db.Client().Disconnect(context.Background())
 	repo := NewNotificationRepository(db)
 	resp, err := repo.DeleteNotification(context.Background(), &pb.DeleteNotificationReq{
-		Id: "test_notification_id",
+		Id: "462dd3da-cb47-44d0-b693-462ebb971aec",
 	})
 	if err != nil {
 		t.Fatal(err)

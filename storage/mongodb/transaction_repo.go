@@ -130,7 +130,6 @@ func (repo *transactionRepositoryImpl) DeleteTransaction(ctx context.Context, re
 func (repo *transactionRepositoryImpl) GetTransaction(ctx context.Context, request *pb.GetTransactionReq) (*pb.GetTransactionResp, error) {
 	filter := bson.D{
 		{Key: "_id", Value: request.Id},
-		{Key: "user_id", Value: request.UserId},
 		{Key: "deleted_at", Value: nil},
 	}
 

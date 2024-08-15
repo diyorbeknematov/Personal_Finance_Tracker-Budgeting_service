@@ -113,13 +113,12 @@ func TestGetAccount(t *testing.T) {
 
 	repo := NewAccountRepository(db)
 	resp, err := repo.GetAccount(context.Background(), &pb.GetAccountReq{
-		Id:     "1e891746-d2bb-44d0-bab0-4660ee52d12d",
-		UserId: "test_user_id",
+		Id:     "116ed66a-d57f-4fd1-b2ef-1310b5367008",
 	})
 
 	if assert.Nil(t, err) {
 		t.Log("GetAccount returned an error")
 	} else {
-		assert.Equal(t, "test_user_id", resp.GetUserId())
+		assert.Equal(t, "ddb813cb-28bd-4edc-819c-e492f7eeaa5c", resp.GetUserId())
 	}
 }
